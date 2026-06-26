@@ -518,3 +518,103 @@ body {
 }
 .splash__tag .dot { opacity: 0.5; }
 @keyframes splashTag { to { opacity: 1; transform: translateY(0); } }
+
+/* ═══════════════════════════════════════════════════════════════
+   PREMIUM PASS — atmosphere, glass, glow, motion
+═══════════════════════════════════════════════════════════════ */
+:root {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---- Home: cinematic ambient lighting ---- */
+.welcome {
+  position: relative;
+  background:
+    radial-gradient(62% 48% at 50% -6%, color-mix(in srgb, var(--accent) 22%, transparent) 0%, transparent 60%),
+    radial-gradient(46% 40% at 88% 108%, color-mix(in srgb, var(--accent-2) 14%, transparent) 0%, transparent 55%),
+    radial-gradient(40% 38% at 8% 104%, color-mix(in srgb, var(--accent) 9%, transparent) 0%, transparent 55%),
+    var(--bg-root);
+  overflow: hidden;
+}
+.welcome::before { /* vignette for depth */
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(75% 65% at 50% 42%, transparent 48%, rgba(0,0,0,.55) 100%);
+}
+.welcome::after { /* fine film grain */
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: var(--grain); background-size: 200px; opacity: .045;
+}
+[data-mode="light"] .welcome::before { background: radial-gradient(75% 65% at 50% 42%, transparent 55%, rgba(120,95,40,.14) 100%); }
+[data-mode="light"] .welcome::after { opacity: .03; }
+
+/* ---- Glass card ---- */
+.welcome__card {
+  position: relative; z-index: 1;
+  background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.018));
+  backdrop-filter: blur(26px) saturate(1.15);
+  -webkit-backdrop-filter: blur(26px) saturate(1.15);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 26px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 42px 90px -22px rgba(0,0,0,.72),
+    0 0 90px -32px color-mix(in srgb, var(--accent) 55%, transparent);
+  animation: premiumRise .7s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes premiumRise { from { opacity: 0; transform: translateY(20px) scale(.985); } to { opacity: 1; transform: none; } }
+[data-mode="light"] .welcome__card {
+  background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.46));
+  border-color: rgba(0,0,0,.06);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 42px 90px -22px rgba(120,95,40,.28), 0 0 90px -34px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* ---- Logo halo ---- */
+.welcome__icon {
+  box-shadow: 0 12px 34px rgba(0,0,0,.5), 0 0 70px -10px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+/* ---- Feature chips with SVG icons ---- */
+.welcome__feats { gap: 9px; }
+.welcome__feat {
+  gap: 10px; padding: 11px 13px; border-radius: 13px;
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.07);
+  transition: transform .18s cubic-bezier(.2,.8,.2,1), border-color .18s, background .18s;
+}
+.welcome__feat:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 42%, transparent); background: rgba(255,255,255,.06); }
+.welcome__feat svg { width: 18px; height: 18px; color: var(--accent); flex-shrink: 0; }
+[data-mode="light"] .welcome__feat { background: rgba(0,0,0,.025); border-color: rgba(0,0,0,.06); }
+[data-mode="light"] .welcome__feat:hover { background: rgba(0,0,0,.05); }
+
+/* ---- Premium buttons (lift + light sweep) ---- */
+.btn-accent { position: relative; overflow: hidden;
+  box-shadow: 0 8px 22px -8px color-mix(in srgb, var(--accent) 75%, transparent), inset 0 1px 0 rgba(255,255,255,.32);
+  transition: transform .16s cubic-bezier(.2,.8,.2,1), box-shadow .22s, opacity .15s;
+}
+.btn-accent:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -10px color-mix(in srgb, var(--accent) 85%, transparent), inset 0 1px 0 rgba(255,255,255,.38); opacity: 1; }
+.btn-accent:active { transform: translateY(0) scale(.99); }
+.btn-accent::after {
+  content: ""; position: absolute; top: 0; left: -70%; width: 45%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.4), transparent);
+  transform: skewX(-20deg); transition: left .55s ease; pointer-events: none;
+}
+.btn-accent:hover::after { left: 130%; }
+
+/* ---- Home script rows: lift ---- */
+.home-script { transition: transform .18s cubic-bezier(.2,.8,.2,1), border-color .18s, background .18s, box-shadow .18s; }
+.home-script:hover { transform: translateY(-2px); box-shadow: 0 12px 26px -12px rgba(0,0,0,.6); }
+
+/* ---- Editor: subtle top light + richer sheet ---- */
+.canvas { background:
+  radial-gradient(54% 32% at 50% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%),
+  var(--bg-canvas); }
+.sheet { box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.045),
+  var(--pg-shadow),
+  0 0 70px -24px color-mix(in srgb, var(--accent) 32%, transparent); }
+
+/* ---- Header: glow refinement + thin top sheen ---- */
+.header { box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 6px 24px -12px rgba(0,0,0,.6); }
+
+/* ---- Snappier global interactions ---- */
+.ham, .modeswitch button, .zoom button, .drawer__tab, .rpanel__row, .d-theme { transition: all .16s cubic-bezier(.2,.8,.2,1); }

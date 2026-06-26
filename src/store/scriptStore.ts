@@ -174,6 +174,11 @@ export const useScriptStore = create<ScriptStore>()(
       // Persist the scripts themselves, but NOT which one was open — so the
       // app always opens to the Home screen for you to pick a script.
       partialize: (s) => ({ scripts: s.scripts }),
+      // Ignore any older persisted activeScriptId so we always start on Home.
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<{ scripts: Script[] }>;
+        return { ...current, scripts: p.scripts ?? current.scripts, activeScriptId: null };
+      },
     }
   )
 );
