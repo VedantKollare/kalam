@@ -618,3 +618,52 @@ body {
 
 /* ---- Snappier global interactions ---- */
 .ham, .modeswitch button, .zoom button, .drawer__tab, .rpanel__row, .d-theme { transition: all .16s cubic-bezier(.2,.8,.2,1); }
+
+/* ═══════════════════════════════════════════════════════════════
+   REFINED CHROME — restrained depth on panels, lists, inputs
+═══════════════════════════════════════════════════════════════ */
+
+/* Panels: faint inner top highlight for a milled edge */
+.drawer, .rpanel { box-shadow: inset 0 1px 0 rgba(255,255,255,.025); }
+[data-mode="light"] .drawer, [data-mode="light"] .rpanel { box-shadow: inset 0 1px 0 rgba(255,255,255,.55); }
+
+/* Header: accent-tinted hairline under the bar */
+.header { border-bottom: none; }
+.header::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; z-index: 2;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 28%, var(--line)) 35%, var(--line) 70%, transparent);
+}
+
+/* Scene rows: a thin accent bar slides in on hover */
+.d-scene, .d-cast, .d-loc { position: relative; }
+.d-scene::before, .d-cast::before {
+  content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px; border-radius: 2px;
+  background: var(--accent); transform: scaleY(0); transform-origin: center;
+  transition: transform .18s cubic-bezier(.2,.8,.2,1);
+}
+.d-scene:hover::before, .d-cast:hover::before { transform: scaleY(1); }
+
+/* Inputs: soft focus ring */
+.s-input:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent); }
+
+/* Stat chips: subtle gradient + inner light */
+.stat {
+  background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.018));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+}
+[data-mode="light"] .stat { background: linear-gradient(180deg, rgba(0,0,0,.035), rgba(0,0,0,.015)); box-shadow: inset 0 1px 0 rgba(255,255,255,.7); }
+
+/* Theme + cast cards: gentle lift */
+.d-theme:hover { transform: translateY(-1px); }
+
+/* Format rows: gentle lift on hover */
+.rpanel__row:hover { transform: translateX(2px); }
+
+/* Drawer tabs: lift the active underline a touch */
+.drawer__tab.active { box-shadow: inset 0 -2px 0 var(--accent); border-bottom-color: transparent; }
+
+/* Refined scrollbar — accent on hover */
+::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--accent) 45%, rgba(128,128,128,.4)); }
+
+/* Export/primary buttons in the drawer get the same lift as home */
+.drawer__foot .btn-accent { box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--accent) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.3); }
