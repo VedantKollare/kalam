@@ -728,3 +728,13 @@ body {
 /* Gentle typewriter focus — the line you're writing stays bright */
 .scriptbody:focus-within .el-block { opacity: .55; transition: opacity .22s ease; }
 .scriptbody:focus-within .el-block:focus { opacity: 1; }
+
+/* Focus / Zen mode toggle in the header */
+.focusbtn {
+  width: 32px; height: 30px; border-radius: 8px;
+  background: var(--bg-card); border: 1px solid var(--line);
+  color: var(--text-2); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.focusbtn:hover { border-color: var(--accent); color: var(--accent); }
+.focusbtn.on { background: var(--accent-grad); color: #0a0a0a; border-color: transparent; }

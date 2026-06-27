@@ -18,12 +18,14 @@ function InfinityMark() {
 
 export default function TopBar() {
   const { getActiveScript, setActiveScript } = useScriptStore();
-  const { mode, toggleMode, drawerOpen, toggleDrawer, zoom, zoomIn, zoomOut, resetZoom } = useAppStore();
+  const { mode, toggleMode, drawerOpen, toggleDrawer, zoom, zoomIn, zoomOut, resetZoom,
+          focusMode, toggleFocusMode, setFocusMode } = useAppStore();
   const script = getActiveScript();
 
-  // Zoom keyboard shortcuts
+  // Keyboard: zoom + Esc exits focus mode
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && focusMode) { setFocusMode(false); return; }
       if (!e.ctrlKey && !e.metaKey) return;
       if (e.key === '=' || e.key === '+') { e.preventDefault(); zoomIn(); }
       if (e.key === '-')                  { e.preventDefault(); zoomOut(); }
@@ -31,7 +33,7 @@ export default function TopBar() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [zoomIn, zoomOut, resetZoom]);
+  }, [zoomIn, zoomOut, resetZoom, focusMode, setFocusMode]);
 
   return (
     <header className="header">
@@ -68,6 +70,19 @@ export default function TopBar() {
 
       {/* Right cluster */}
       <div className="header__right">
+        {/* Focus / Zen mode */}
+        {script && (
+          <button
+            className={`focusbtn ${focusMode ? 'on' : ''}`}
+            onClick={toggleFocusMode}
+            title={focusMode ? 'Exit focus mode (Esc)' : 'Focus mode — just you and the page'}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/>
+            </svg>
+          </button>
+        )}
+
         {/* Zoom (only when a script is open) */}
         {script && (
           <div className="zoom">

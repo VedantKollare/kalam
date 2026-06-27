@@ -12,7 +12,7 @@ import { exportToPDF } from './utils/exportPDF';
 
 export default function App() {
   const { getActiveScript } = useScriptStore();
-  const { theme, mode } = useAppStore();
+  const { theme, mode, focusMode } = useAppStore();
   const script = getActiveScript();
 
   // Splash — plays on every load, then reveals the Home screen. Click to skip.
@@ -38,11 +38,11 @@ export default function App() {
         /* In a script — full app chrome */
         <>
           <TopBar />
-          <ElementTabBar />
+          {!focusMode && <ElementTabBar />}
           <div className="body-row">
-            <Drawer onExportPDF={handleExportPDF} />
+            {!focusMode && <Drawer onExportPDF={handleExportPDF} />}
             <ScreenplayEditor />
-            <PropertiesPanel />
+            {!focusMode && <PropertiesPanel />}
           </div>
         </>
       ) : (
