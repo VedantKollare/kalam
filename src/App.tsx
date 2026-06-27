@@ -3,8 +3,9 @@ import { useScriptStore } from './store/scriptStore';
 import { useAppStore } from './store/appStore';
 import TopBar from './components/TopBar';
 import Drawer from './components/Drawer';
+import ElementTabBar from './components/ElementTabBar';
 import ScreenplayEditor from './components/ScreenplayEditor';
-import ElementPanel from './components/ElementPanel';
+import PropertiesPanel from './components/PropertiesPanel';
 import WelcomeScreen from './components/WelcomeScreen';
 import Splash from './components/Splash';
 import { exportToPDF } from './utils/exportPDF';
@@ -37,10 +38,11 @@ export default function App() {
         /* In a script — full app chrome */
         <>
           <TopBar />
+          <ElementTabBar />
           <div className="body-row">
             <Drawer onExportPDF={handleExportPDF} />
             <ScreenplayEditor />
-            <ElementPanel />
+            <PropertiesPanel />
           </div>
         </>
       ) : (

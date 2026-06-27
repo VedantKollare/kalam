@@ -1,4 +1,5 @@
 import { type Script } from '../types/screenplay';
+import { plain } from './text';
 
 export interface ParsedLocation {
   kind: 'INT' | 'EXT' | 'OTHER';
@@ -44,8 +45,9 @@ export function groupLocations(script: Script | null): GroupedLocations {
 
   if (script) {
     for (const b of script.blocks) {
-      if (b.type !== 'scene_heading' || !b.content.trim()) continue;
-      const { kind, name } = parseHeading(b.content);
+      const text = plain(b.content).trim();
+      if (b.type !== 'scene_heading' || !text) continue;
+      const { kind, name } = parseHeading(text);
       if (kind === 'INT') interior.add(name);
       else if (kind === 'EXT') exterior.add(name);
       else other.add(name);

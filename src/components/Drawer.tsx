@@ -4,6 +4,7 @@ import { useAppStore, THEMES, type ThemeId } from '../store/appStore';
 import { type ScriptLanguage } from '../types/screenplay';
 import { groupLocations } from '../utils/parseScenes';
 import { downloadDoc } from '../utils/exportDoc';
+import { plain } from '../utils/text';
 
 interface Props { onExportPDF: () => void }
 
@@ -39,11 +40,11 @@ export default function Drawer({ onExportPDF }: Props) {
   const scenes = script?.blocks.filter(b => b.type === 'scene_heading') ?? [];
   const cast = [...new Set(
     (script?.blocks.filter(b => b.type === 'character') ?? [])
-      .map(b => b.content.trim().toUpperCase()).filter(Boolean),
+      .map(b => plain(b.content).trim().toUpperCase()).filter(Boolean),
   )];
   const locs = groupLocations(script);
-  const words = script?.blocks.reduce((n,b) => n + b.content.split(/\s+/).filter(Boolean).length, 0) ?? 0;
-  const pages = Math.max(1, Math.round((script?.blocks.reduce((n,b) => n + b.content.length, 0) ?? 0) / 280));
+  const words = script?.blocks.reduce((n,b) => n + plain(b.content).split(/\s+/).filter(Boolean).length, 0) ?? 0;
+  const pages = Math.max(1, Math.round((script?.blocks.reduce((n,b) => n + plain(b.content).length, 0) ?? 0) / 280));
 
   const jumpToScene = (id: string) => {
     document.getElementById(`block-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -84,7 +85,7 @@ export default function Drawer({ onExportPDF }: Props) {
               : scenes.map((s, i) => (
                 <div key={s.id} className="d-scene" onClick={() => jumpToScene(s.id)}>
                   <span className="d-scene__n">{i + 1}</span>
-                  <span className="d-scene__h">{s.content || '—'}</span>
+                  <span className="d-scene__h">{plain(s.content) || '—'}</span>
                 </div>
               ))}
           </>

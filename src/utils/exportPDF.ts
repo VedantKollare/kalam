@@ -1,4 +1,5 @@
 import { type Script } from '../types/screenplay';
+import { plain } from './text';
 
 export async function exportToPDF(script: Script): Promise<void> {
   // Dynamic import to keep bundle lean
@@ -60,7 +61,7 @@ export async function exportToPDF(script: Script): Promise<void> {
   doc.setFontSize(fontSize);
 
   for (const block of script.blocks) {
-    const content = block.content.trim();
+    const content = plain(block.content).trim();
     if (!content) {
       addBlankLine();
       continue;

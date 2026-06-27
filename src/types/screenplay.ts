@@ -22,9 +22,24 @@ export interface Script {
   author: string;
   language: ScriptLanguage;
   blocks: ScreenplayBlock[];
+  font?: string;       // page font family (Word/Docs-style choice)
+  fontSize?: number;   // page font size in pt
   createdAt: number;
   updatedAt: number;
 }
+
+/** Fonts offered in the Typography picker (Word/Docs style) */
+export const FONT_OPTIONS: { label: string; value: string }[] = [
+  { label: 'Courier Prime', value: "'Courier Prime'" },
+  { label: 'Courier New',   value: "'Courier New'" },
+  { label: 'Inter',         value: "'Inter'" },
+  { label: 'Roboto Mono',   value: "'Roboto Mono'" },
+  { label: 'Georgia',       value: 'Georgia' },
+  { label: 'Times New Roman', value: "'Times New Roman'" },
+  { label: 'Arial',         value: 'Arial' },
+];
+export const DEFAULT_FONT = "'Courier Prime'";
+export const DEFAULT_SIZE = 12;
 
 export const ELEMENT_LABELS: Record<ElementType, string> = {
   scene_heading: 'Scene Heading',
