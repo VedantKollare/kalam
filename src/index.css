@@ -738,3 +738,43 @@ body {
 }
 .focusbtn:hover { border-color: var(--accent); color: var(--accent); }
 .focusbtn.on { background: var(--accent-grad); color: #0a0a0a; border-color: transparent; }
+
+/* ═══════════════════════════════════════════════════════════════
+   PRINT — output a clean, industry-standard black-on-white screenplay
+═══════════════════════════════════════════════════════════════ */
+@page { size: A4; margin: 1in 1in 1in 1.5in; }
+
+@media print {
+  /* Hide all app chrome */
+  .header, .etabs, .drawer, .props, .splash, .focusbtn { display: none !important; }
+
+  html, body { background: #fff !important; height: auto !important; overflow: visible !important; }
+  #root { height: auto !important; display: block !important; }
+  .body-row { display: block !important; overflow: visible !important; }
+  .canvas {
+    overflow: visible !important; padding: 0 !important; background: #fff !important;
+    background-image: none !important;
+  }
+  .zoom-wrap { zoom: 1 !important; transform: none !important; margin: 0 !important; }
+
+  /* The page becomes the printed paper */
+  .sheet {
+    box-shadow: none !important; border: none !important; border-radius: 0 !important;
+    background: #fff !important; width: 100% !important; max-width: none !important;
+    min-height: 0 !important; margin: 0 !important; padding: 0 !important;
+    background-image: none !important;
+  }
+  .sheet__title { border-color: #000 !important; }
+  .sheet__title h1 { color: #000 !important; }
+  .sheet__title p  { color: #000 !important; }
+
+  /* Standard screenplay text: black Courier, no dimming */
+  .scriptbody { font-family: 'Courier Prime','Courier New',monospace !important; font-size: 12pt !important; color: #000 !important; }
+  .el-block { opacity: 1 !important; color: #000 !important; }
+  .scriptbody:focus-within .el-block { opacity: 1 !important; }
+  .el-scene_heading { color: #000 !important; text-decoration: underline; }
+  .el-action, .el-character, .el-parenthetical, .el-dialogue,
+  .el-transition, .el-song, .el-intermission { color: #000 !important; border-color: #000 !important; }
+  .el-block:empty::before { content: "" !important; }       /* hide placeholders */
+  .scene-num { color: #000 !important; }
+}
