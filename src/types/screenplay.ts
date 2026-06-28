@@ -10,10 +10,13 @@ export type ElementType =
 
 export type ScriptLanguage = 'english' | 'hindi' | 'tamil' | 'telugu' | 'malayalam' | 'hinglish';
 
+export type Align = 'left' | 'center' | 'right' | 'justify';
+
 export interface ScreenplayBlock {
   id: string;
   type: ElementType;
   content: string;
+  align?: Align;
 }
 
 export interface Script {

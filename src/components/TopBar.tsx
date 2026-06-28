@@ -21,7 +21,7 @@ function InfinityMark() {
 export default function TopBar() {
   const { getActiveScript, setActiveScript } = useScriptStore();
   const { mode, toggleMode, drawerOpen, toggleDrawer, zoom, zoomIn, zoomOut, resetZoom,
-          focusMode, toggleFocusMode, setFocusMode, setShareOpen } = useAppStore();
+          focusMode, toggleFocusMode, setFocusMode, setShareOpen, setFindOpen } = useAppStore();
   const { user } = useAuthStore();
   const script = getActiveScript();
 
@@ -30,13 +30,14 @@ export default function TopBar() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && focusMode) { setFocusMode(false); return; }
       if (!e.ctrlKey && !e.metaKey) return;
+      if (e.key === 'f' || e.key === 'F') { e.preventDefault(); setFindOpen(true); }
       if (e.key === '=' || e.key === '+') { e.preventDefault(); zoomIn(); }
       if (e.key === '-')                  { e.preventDefault(); zoomOut(); }
       if (e.key === '0')                  { e.preventDefault(); resetZoom(); }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [zoomIn, zoomOut, resetZoom, focusMode, setFocusMode]);
+  }, [zoomIn, zoomOut, resetZoom, focusMode, setFocusMode, setFindOpen]);
 
   return (
     <header className="header">

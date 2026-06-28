@@ -887,6 +887,33 @@ body {
 .shared__icon { font-size: 40px; }
 .shared__home { color: var(--accent); font-weight: 700; text-decoration: none; margin-top: 8px; }
 
+/* Active alignment button + glyph sizing */
+.ftoolbar__biu button.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+/* ═══════════════════════════════════════════════════════════════
+   FIND IN DOCUMENT
+═══════════════════════════════════════════════════════════════ */
+.findbar {
+  position: fixed; top: 60px; right: 18px; z-index: 120;
+  display: flex; align-items: center; gap: 4px;
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: 10px;
+  padding: 6px 8px; box-shadow: 0 12px 32px -10px rgba(0,0,0,.55);
+  animation: premiumRise .15s ease both;
+}
+.findbar__input {
+  background: var(--bg-input); border: 1px solid var(--line); border-radius: 7px;
+  padding: 7px 10px; font-size: 12.5px; color: var(--text); font-family: var(--font-ui);
+  outline: none; width: 200px;
+}
+.findbar__input:focus { border-color: var(--accent); }
+.findbar__count { font-size: 11px; color: var(--text-3); min-width: 38px; text-align: center; }
+.findbar__nav {
+  width: 28px; height: 28px; border-radius: 7px; background: transparent; border: none;
+  color: var(--text-2); cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center;
+}
+.findbar__nav:hover:not(:disabled) { background: var(--bg-hover); color: var(--accent); }
+.findbar__nav:disabled { opacity: .4; cursor: default; }
+
 /* ═══════════════════════════════════════════════════════════════
    PRINT — output a clean, industry-standard black-on-white screenplay
 ═══════════════════════════════════════════════════════════════ */

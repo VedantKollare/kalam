@@ -13,13 +13,14 @@ import WelcomeScreen from './components/WelcomeScreen';
 import Splash from './components/Splash';
 import ShareModal from './components/ShareModal';
 import SharedView from './components/SharedView';
+import FindBar from './components/FindBar';
 import { exportToPDF } from './utils/exportPDF';
 
 const SHARED_ID = new URLSearchParams(window.location.search).get('s');
 
 export default function App() {
   const { getActiveScript, setActiveScript } = useScriptStore();
-  const { theme, mode, focusMode, shareOpen, setShareOpen } = useAppStore();
+  const { theme, mode, focusMode, shareOpen, setShareOpen, findOpen } = useAppStore();
   const { user, init } = useAuthStore();
   const script = getActiveScript();
 
@@ -73,6 +74,7 @@ export default function App() {
         /* Home — no header, no drawer */
         <WelcomeScreen />
       )}
+      {script && findOpen && <FindBar />}
       {shareOpen && <ShareModal onClose={() => setShareOpen(false)} />}
       {showSplash && <Splash onDone={dismissSplash} />}
     </>

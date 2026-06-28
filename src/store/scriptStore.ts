@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { type Script, type ScreenplayBlock, type ElementType } from '../types/screenplay';
+import { type Script, type ScreenplayBlock, type ElementType, type Align } from '../types/screenplay';
 
 function generateId() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -36,6 +36,7 @@ interface ScriptStore {
   updateBlock: (id: string, content: string) => void;
   deleteBlock: (id: string) => void;
   changeBlockType: (id: string, type: ElementType) => void;
+  setBlockAlign: (id: string, align: Align) => void;
   moveBlock: (id: string, direction: 'up' | 'down') => void;
 
   // Getters
@@ -137,6 +138,20 @@ export const useScriptStore = create<ScriptStore>()(
               ? {
                   ...s,
                   blocks: s.blocks.map(b => (b.id === id ? { ...b, type } : b)),
+                  updatedAt: Date.now(),
+                }
+              : s
+          ),
+        }));
+      },
+
+      setBlockAlign: (id, align) => {
+        set(state => ({
+          scripts: state.scripts.map(s =>
+            s.id === state.activeScriptId
+              ? {
+                  ...s,
+                  blocks: s.blocks.map(b => (b.id === id ? { ...b, align } : b)),
                   updatedAt: Date.now(),
                 }
               : s

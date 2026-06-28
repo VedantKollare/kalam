@@ -47,6 +47,7 @@ const Block = memo(({ block, onKeyDown, onInput, onFocus, register }: BlockProps
       contentEditable suppressContentEditableWarning spellCheck
       data-ph={PLACEHOLDERS[block.type]}
       className={`el-block el-${block.type}`}
+      style={block.align ? { textAlign: block.align } : undefined}
       onKeyDown={e => onKeyDown(e, block.id, block.type)}
       onInput={e => onInput(e, block.id)}
       onFocus={() => onFocus(block.id)}
