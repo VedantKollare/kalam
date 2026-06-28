@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import { useScriptStore } from '../store/scriptStore';
+import AuthControl from './AuthControl';
 
 const S = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
 
@@ -35,6 +36,8 @@ export default function WelcomeScreen() {
         <p className="welcome__langs">English · हिन्दी · தமிழ் · తెలుగు · മലയാളം · Hinglish</p>
 
         <button className="btn-accent" onClick={createScript}>＋ New Script</button>
+
+        <div className="welcome__auth"><AuthControl /></div>
 
         {hasScripts ? (
           <div className="home-list">

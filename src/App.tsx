@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useScriptStore } from './store/scriptStore';
 import { useAppStore } from './store/appStore';
+import { useAuthStore } from './store/authStore';
+import { pullScripts, startSync, stopSync } from './lib/sync';
 import TopBar from './components/TopBar';
 import Drawer from './components/Drawer';
 import ElementTabBar from './components/ElementTabBar';
@@ -13,7 +15,17 @@ import { exportToPDF } from './utils/exportPDF';
 export default function App() {
   const { getActiveScript } = useScriptStore();
   const { theme, mode, focusMode } = useAppStore();
+  const { user, init } = useAuthStore();
   const script = getActiveScript();
+
+  // Initialise auth session once
+  useEffect(() => { init(); }, [init]);
+
+  // When the signed-in user changes: pull cloud scripts + keep syncing (or stop)
+  useEffect(() => {
+    if (user) { pullScripts(user.id).then(() => startSync(user.id)); }
+    else { stopSync(); }
+  }, [user]);
 
   // Splash — plays on every load, then reveals the Home screen. Click to skip.
   const [showSplash, setShowSplash] = useState(true);
