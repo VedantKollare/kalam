@@ -73,7 +73,7 @@ export default function WelcomeScreen() {
           </div>
         )}
 
-        <p style={{ fontSize:10, color:'var(--text-3)', marginTop:14 }}>Auto-saved locally · No account needed</p>
+        <p className="welcome__tag">For stories that never die.</p>
       </div>
     </div>
   );

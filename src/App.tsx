@@ -5,18 +5,22 @@ import { useAuthStore } from './store/authStore';
 import { pullScripts, startSync, stopSync } from './lib/sync';
 import TopBar from './components/TopBar';
 import Drawer from './components/Drawer';
+import FormatToolbar from './components/FormatToolbar';
 import ElementTabBar from './components/ElementTabBar';
 import ScreenplayEditor from './components/ScreenplayEditor';
-import PropertiesPanel from './components/PropertiesPanel';
+import CommentsPanel from './components/CommentsPanel';
 import WelcomeScreen from './components/WelcomeScreen';
 import Splash from './components/Splash';
 import { exportToPDF } from './utils/exportPDF';
 
 export default function App() {
-  const { getActiveScript } = useScriptStore();
+  const { getActiveScript, setActiveScript } = useScriptStore();
   const { theme, mode, focusMode } = useAppStore();
   const { user, init } = useAuthStore();
   const script = getActiveScript();
+
+  // Always open to Home on launch (pick a script there) — belt & suspenders
+  useEffect(() => { setActiveScript(null); }, [setActiveScript]);
 
   // Initialise auth session once
   useEffect(() => { init(); }, [init]);
@@ -50,11 +54,12 @@ export default function App() {
         /* In a script — full app chrome */
         <>
           <TopBar />
+          {!focusMode && <FormatToolbar />}
           {!focusMode && <ElementTabBar />}
           <div className="body-row">
             {!focusMode && <Drawer onExportPDF={handleExportPDF} />}
             <ScreenplayEditor />
-            {!focusMode && <PropertiesPanel />}
+            {!focusMode && <CommentsPanel />}
           </div>
         </>
       ) : (

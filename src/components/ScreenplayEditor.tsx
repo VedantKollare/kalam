@@ -1,9 +1,10 @@
 import React, {
-  useRef, useCallback, useEffect, memo,
+  useRef, useCallback, useEffect, useState, memo,
   type KeyboardEvent, type FormEvent,
 } from 'react';
 import { useScriptStore } from '../store/scriptStore';
 import { useAppStore } from '../store/appStore';
+import { useCommentStore } from '../store/commentStore';
 import {
   type ElementType, type ScreenplayBlock,
   NEXT_ELEMENT, LANGUAGE_FONTS, DEFAULT_FONT, DEFAULT_SIZE,
@@ -54,14 +55,44 @@ const Block = memo(({ block, onKeyDown, onInput, onFocus, register }: BlockProps
 });
 Block.displayName = 'Block';
 
+type CommentAnchor = { x: number; y: number; quote: string; blockId: string };
+
 export default function ScreenplayEditor() {
   const { getActiveScript, updateBlock, addBlock, deleteBlock, changeBlockType } = useScriptStore();
   const { zoom, setFocusedBlock } = useAppStore();
+  const addComment = useCommentStore(s => s.add);
   const script = getActiveScript();
 
   const refs = useRef<Record<string, HTMLDivElement | null>>({});
   const focusTarget = useRef<string | null>(null);
   const register = useCallback((id: string, el: HTMLDivElement | null) => { refs.current[id] = el; }, []);
+
+  // Selection-based commenting (Google-Docs style)
+  const [anchor, setAnchor] = useState<CommentAnchor | null>(null);
+  const [composing, setComposing] = useState(false);
+  const [draft, setDraft] = useState('');
+
+  const onSelect = useCallback(() => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || sel.rangeCount === 0) { if (!composing) setAnchor(null); return; }
+    const text = sel.toString().trim();
+    if (!text) { if (!composing) setAnchor(null); return; }
+    const range = sel.getRangeAt(0);
+    const startEl = range.startContainer.nodeType === 1
+      ? (range.startContainer as HTMLElement)
+      : range.startContainer.parentElement;
+    const blockEl = startEl?.closest('.el-block') as HTMLElement | null;
+    if (!blockEl?.id.startsWith('block-')) { if (!composing) setAnchor(null); return; }
+    const r = range.getBoundingClientRect();
+    setAnchor({ x: r.right, y: r.top, quote: text, blockId: blockEl.id.slice('block-'.length) });
+  }, [composing]);
+
+  const submitComment = () => {
+    if (!script || !anchor || !draft.trim()) return;
+    addComment({ scriptId: script.id, blockId: anchor.blockId, quote: anchor.quote, text: draft.trim() });
+    setDraft(''); setComposing(false); setAnchor(null);
+    window.getSelection()?.removeAllRanges();
+  };
 
   const placeCaretEnd = (el: HTMLDivElement) => {
     el.focus();
@@ -137,7 +168,7 @@ export default function ScreenplayEditor() {
   for (const b of script.blocks) if (b.type === 'scene_heading') sceneNums[b.id] = ++n;
 
   return (
-    <div className="canvas">
+    <div className="canvas" onMouseUp={onSelect} onKeyUp={onSelect}>
       <div className="zoom-wrap" style={{ zoom: zoom / 100 }}>
         <div className="sheet">
           <div className="sheet__title">
@@ -161,6 +192,38 @@ export default function ScreenplayEditor() {
           </div>
         </div>
       </div>
+
+      {/* Floating "Comment" button on text selection */}
+      {anchor && !composing && (
+        <button
+          className="cbtn"
+          style={{ position: 'fixed', top: Math.max(8, anchor.y - 40), left: anchor.x - 24 }}
+          onMouseDown={e => { e.preventDefault(); setComposing(true); }}
+        >
+          💬 Comment
+        </button>
+      )}
+
+      {/* Comment composer */}
+      {anchor && composing && (
+        <div
+          className="ccomposer"
+          style={{ position: 'fixed', top: anchor.y + 10, left: Math.min(Math.max(12, anchor.x - 140), window.innerWidth - 300) }}
+          onMouseDown={e => e.stopPropagation()}
+        >
+          <div className="ccomposer__quote">“{anchor.quote.length > 60 ? anchor.quote.slice(0, 60) + '…' : anchor.quote}”</div>
+          <textarea
+            autoFocus value={draft}
+            onChange={e => setDraft(e.target.value)}
+            placeholder="Add a comment…"
+            onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitComment(); }}
+          />
+          <div className="ccomposer__row">
+            <button onClick={() => { setComposing(false); setAnchor(null); setDraft(''); }}>Cancel</button>
+            <button className="primary" disabled={!draft.trim()} onClick={submitComment}>Comment</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
