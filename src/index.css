@@ -914,6 +914,10 @@ body {
 .findbar__nav:hover:not(:disabled) { background: var(--bg-hover); color: var(--accent); }
 .findbar__nav:disabled { opacity: .4; cursor: default; }
 
+/* Match highlights (no caret/focus change) */
+::highlight(find-all)     { background-color: rgba(245, 208, 96, 0.30); }
+::highlight(find-current) { background-color: #f5d060; color: #0a0a0a; }
+
 /* ═══════════════════════════════════════════════════════════════
    PRINT — output a clean, industry-standard black-on-white screenplay
 ═══════════════════════════════════════════════════════════════ */

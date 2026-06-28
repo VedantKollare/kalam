@@ -17,11 +17,11 @@ function collectMatches(q: string): Range[] {
     let i = hay.indexOf(needle);
     while (i !== -1) {
       const r = document.createRange();
-      const point = (pos: number, start: boolean) => {
-        for (const { node, start: s } of nodes) {
-          if (pos <= s + (node.textContent?.length ?? 0)) {
-            const off = pos - s;
-            start ? r.setStart(node, off) : r.setEnd(node, off);
+      const point = (pos: number, isStart: boolean) => {
+        for (const { node, start } of nodes) {
+          if (pos <= start + (node.textContent?.length ?? 0)) {
+            const off = pos - start;
+            isStart ? r.setStart(node, off) : r.setEnd(node, off);
             return;
           }
         }
@@ -34,6 +34,15 @@ function collectMatches(q: string): Range[] {
   return out;
 }
 
+// CSS Custom Highlight API — highlights matches WITHOUT moving the caret/focus.
+const HL = typeof CSS !== 'undefined' && 'highlights' in CSS;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function clearHL() {
+  if (!HL) return;
+  (CSS as any).highlights.delete('find-all');
+  (CSS as any).highlights.delete('find-current');
+}
+
 export default function FindBar() {
   const { setFindOpen } = useAppStore();
   const [q, setQ] = useState('');
@@ -42,13 +51,21 @@ export default function FindBar() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => () => clearHL(), []);
 
-  const go = (list: Range[], i: number) => {
-    if (!list.length) return;
-    const r = list[(i + list.length) % list.length];
-    const sel = window.getSelection();
-    sel?.removeAllRanges(); sel?.addRange(r);
-    (r.startContainer.parentElement as HTMLElement | null)
+  const paint = (list: Range[], i: number) => {
+    if (HL) {
+      const Highlight = (window as any).Highlight;
+      (CSS as any).highlights.set('find-all', new Highlight(...list));
+      if (list[i]) {
+        const cur = new Highlight(list[i]); cur.priority = 1;
+        (CSS as any).highlights.set('find-current', cur);
+      } else {
+        (CSS as any).highlights.delete('find-current');
+      }
+    }
+    // scroll the current match into view — does NOT change focus
+    (list[i]?.startContainer.parentElement as HTMLElement | null)
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
@@ -56,16 +73,16 @@ export default function FindBar() {
     setQ(term);
     const list = collectMatches(term);
     setMatches(list); setIdx(0);
-    go(list, 0);
+    if (list.length) paint(list, 0); else clearHL();
   };
 
   const step = (dir: 1 | -1) => {
     if (!matches.length) return;
     const next = (idx + dir + matches.length) % matches.length;
-    setIdx(next); go(matches, next);
+    setIdx(next); paint(matches, next);
   };
 
-  const close = () => { window.getSelection()?.removeAllRanges(); setFindOpen(false); };
+  const close = () => { clearHL(); setFindOpen(false); };
 
   return (
     <div className="findbar">
@@ -75,7 +92,7 @@ export default function FindBar() {
         onChange={e => search(e.target.value)}
         onKeyDown={e => {
           if (e.key === 'Enter') { e.preventDefault(); step(e.shiftKey ? -1 : 1); }
-          if (e.key === 'Escape') close();
+          if (e.key === 'Escape') { e.preventDefault(); close(); }
         }}
       />
       <span className="findbar__count">{q ? (matches.length ? `${idx + 1}/${matches.length}` : '0/0') : ''}</span>
