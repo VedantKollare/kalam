@@ -12,6 +12,12 @@ export default function FormatToolbar() {
 
   return (
     <div className="ftoolbar">
+      <div className="ftoolbar__biu">
+        <button onMouseDown={e => { e.preventDefault(); document.execCommand('undo'); }} title="Undo (Ctrl+Z)">↶</button>
+        <button onMouseDown={e => { e.preventDefault(); document.execCommand('redo'); }} title="Redo (Ctrl+Y)">↷</button>
+      </div>
+      <div className="ftoolbar__sep" />
+
       <select
         className="ftoolbar__font"
         value={font}

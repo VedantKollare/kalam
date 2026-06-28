@@ -215,8 +215,11 @@ export default function ScreenplayEditor() {
           <textarea
             autoFocus value={draft}
             onChange={e => setDraft(e.target.value)}
-            placeholder="Add a comment…"
-            onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitComment(); }}
+            placeholder="Add a comment…  (Enter to send · Shift+Enter for a new line)"
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment(); }
+              if (e.key === 'Escape') { setComposing(false); setAnchor(null); setDraft(''); }
+            }}
           />
           <div className="ccomposer__row">
             <button onClick={() => { setComposing(false); setAnchor(null); setDraft(''); }}>Cancel</button>

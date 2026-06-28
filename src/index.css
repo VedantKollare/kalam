@@ -180,6 +180,8 @@ body {
   font-size: 14px; font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  padding: 0 12px;
 }
 .header__title .empty { color: var(--text-3); font-weight: 400; font-size: 13px; }
 
@@ -838,6 +840,52 @@ body {
 
 .el-block.flash { animation: cflash 1.2s ease; border-radius: 4px; }
 @keyframes cflash { 0%,100% { background: transparent; } 30% { background: color-mix(in srgb, var(--accent) 22%, transparent); } }
+
+/* ═══════════════════════════════════════════════════════════════
+   HEADER: Saved status + Share button  ·  Share modal  ·  Shared view
+═══════════════════════════════════════════════════════════════ */
+.savedstat { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-3); white-space: nowrap; }
+.savedstat__dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,.5); }
+
+.sharebtn {
+  display: flex; align-items: center; gap: 7px; border: none; cursor: pointer;
+  background: var(--accent-grad); color: #0a0a0a; border-radius: 20px;
+  padding: 7px 15px; font-size: 12.5px; font-weight: 700; font-family: var(--font-ui);
+  box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--accent) 70%, transparent);
+  transition: opacity .15s, transform .1s;
+}
+.sharebtn:hover { opacity: .9; transform: translateY(-1px); }
+
+.btn-ghost { background: var(--bg-card); border: 1px solid var(--line); border-radius: 9px; color: var(--text); font-size: 12.5px; font-weight: 600; padding: 9px 16px; cursor: pointer; font-family: var(--font-ui); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+.modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.55); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn .15s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal { width: 480px; max-width: 100%; background: var(--bg-panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 30px 80px -20px rgba(0,0,0,.7); animation: premiumRise .25s cubic-bezier(.2,.8,.2,1) both; }
+.modal__head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px 10px; }
+.modal__head h2 { font-size: 17px; font-weight: 700; color: var(--text); margin: 0; }
+.modal__x { background: none; border: none; color: var(--text-3); font-size: 15px; cursor: pointer; width: 30px; height: 30px; border-radius: 8px; }
+.modal__x:hover { background: var(--bg-hover); color: var(--text); }
+.modal__note { padding: 6px 20px 18px; font-size: 13px; color: var(--text-2); line-height: 1.6; }
+.modal__foot { display: flex; justify-content: flex-end; padding: 14px 20px 18px; }
+.share__access { display: flex; align-items: flex-start; gap: 12px; padding: 6px 20px 14px; }
+.share__access-ic { width: 38px; height: 38px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.share__access-body { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.share__access-body p { font-size: 11.5px; color: var(--text-3); margin: 0; }
+.share__role { width: 110px; flex-shrink: 0; }
+.share__link { display: flex; gap: 8px; padding: 8px 20px 4px; }
+.share__link .s-input { flex: 1; font-size: 12px; }
+.share__link .btn-accent { width: auto; padding: 9px 16px; white-space: nowrap; }
+.share__hint { padding: 6px 20px 0; font-size: 11px; color: var(--text-3); }
+
+.shared { min-height: 100vh; background: var(--bg-canvas); display: flex; flex-direction: column; }
+.shared__bar { display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: var(--bg-header); border-bottom: 1px solid var(--line); font-size: 13px; color: var(--text-2); }
+.shared__badge { font-size: 9px; font-weight: 800; letter-spacing: .12em; background: var(--accent); color: var(--bg-root); border-radius: 6px; padding: 3px 8px; }
+.shared__cta { margin-left: auto; color: var(--accent); font-weight: 700; text-decoration: none; font-size: 13px; }
+.shared .canvas { flex: 1; }
+.shared--msg { align-items: center; justify-content: center; text-align: center; color: var(--text-2); font-size: 14px; gap: 12px; padding: 40px; line-height: 1.6; }
+.shared__icon { font-size: 40px; }
+.shared__home { color: var(--accent); font-weight: 700; text-decoration: none; margin-top: 8px; }
 
 /* ═══════════════════════════════════════════════════════════════
    PRINT — output a clean, industry-standard black-on-white screenplay

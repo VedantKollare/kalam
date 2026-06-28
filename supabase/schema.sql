@@ -26,3 +26,9 @@ create policy "scripts_update_own" on public.scripts
   for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "scripts_delete_own" on public.scripts
   for delete using (auth.uid() = user_id);
+
+-- Sharing: a public flag + a read policy so "anyone with the link" can view.
+alter table public.scripts add column if not exists is_public boolean not null default false;
+drop policy if exists "scripts_public_read" on public.scripts;
+create policy "scripts_public_read" on public.scripts
+  for select using (is_public = true);

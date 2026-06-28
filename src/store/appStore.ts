@@ -29,6 +29,7 @@ interface AppStore {
   zoom: number;
   drawerOpen: boolean;
   focusMode: boolean;
+  shareOpen: boolean;
   focusedBlockId: string | null;
 
   setTheme: (id: ThemeId) => void;
@@ -38,6 +39,7 @@ interface AppStore {
   setDrawerOpen: (open: boolean) => void;
   toggleFocusMode: () => void;
   setFocusMode: (on: boolean) => void;
+  setShareOpen: (on: boolean) => void;
   setFocusedBlock: (id: string | null) => void;
 
   setZoom: (z: number) => void;
@@ -54,6 +56,7 @@ export const useAppStore = create<AppStore>()(
       zoom: 160,          // sheet opens zoomed-in by default
       drawerOpen: false,
       focusMode: false,
+      shareOpen: false,
       focusedBlockId: null,
 
       setTheme: (theme) => set({ theme }),
@@ -63,6 +66,7 @@ export const useAppStore = create<AppStore>()(
       setDrawerOpen: (drawerOpen) => set({ drawerOpen }),
       toggleFocusMode: () => set((s) => ({ focusMode: !s.focusMode })),
       setFocusMode: (focusMode) => set({ focusMode }),
+      setShareOpen: (shareOpen) => set({ shareOpen }),
       setFocusedBlock: (focusedBlockId) => set({ focusedBlockId }),
 
       setZoom: (zoom) => set({ zoom: Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom)) }),

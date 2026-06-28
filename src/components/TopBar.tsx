@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useScriptStore } from '../store/scriptStore';
 import { useAppStore } from '../store/appStore';
+import { useAuthStore } from '../store/authStore';
+import { cloudEnabled } from '../lib/supabase';
 
 /** Golden infinity app-icon mark */
 function InfinityMark() {
@@ -19,7 +21,8 @@ function InfinityMark() {
 export default function TopBar() {
   const { getActiveScript, setActiveScript } = useScriptStore();
   const { mode, toggleMode, drawerOpen, toggleDrawer, zoom, zoomIn, zoomOut, resetZoom,
-          focusMode, toggleFocusMode, setFocusMode } = useAppStore();
+          focusMode, toggleFocusMode, setFocusMode, setShareOpen } = useAppStore();
+  const { user } = useAuthStore();
   const script = getActiveScript();
 
   // Keyboard: zoom + Esc exits focus mode
@@ -70,6 +73,25 @@ export default function TopBar() {
 
       {/* Right cluster */}
       <div className="header__right">
+        {/* Saved status (Google-Docs style) */}
+        {script && (
+          <span className="savedstat" title={user ? 'Synced to your account' : 'Saved on this device'}>
+            <span className="savedstat__dot" />
+            {cloudEnabled && user ? 'Saved to cloud' : 'Saved'}
+          </span>
+        )}
+
+        {/* Share */}
+        {script && cloudEnabled && (
+          <button className="sharebtn" onClick={() => setShareOpen(true)} title="Share">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>
+            </svg>
+            Share
+          </button>
+        )}
+
         {/* Print */}
         {script && (
           <button className="focusbtn" onClick={() => window.print()} title="Print screenplay">

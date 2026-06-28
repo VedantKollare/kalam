@@ -11,11 +11,15 @@ import ScreenplayEditor from './components/ScreenplayEditor';
 import CommentsPanel from './components/CommentsPanel';
 import WelcomeScreen from './components/WelcomeScreen';
 import Splash from './components/Splash';
+import ShareModal from './components/ShareModal';
+import SharedView from './components/SharedView';
 import { exportToPDF } from './utils/exportPDF';
+
+const SHARED_ID = new URLSearchParams(window.location.search).get('s');
 
 export default function App() {
   const { getActiveScript, setActiveScript } = useScriptStore();
-  const { theme, mode, focusMode } = useAppStore();
+  const { theme, mode, focusMode, shareOpen, setShareOpen } = useAppStore();
   const { user, init } = useAuthStore();
   const script = getActiveScript();
 
@@ -48,6 +52,9 @@ export default function App() {
     catch { alert('Export failed. Please try again.'); }
   }, [script]);
 
+  // A share link → read-only viewer (no editing chrome)
+  if (SHARED_ID) return <SharedView id={SHARED_ID} />;
+
   return (
     <>
       {script ? (
@@ -66,6 +73,7 @@ export default function App() {
         /* Home — no header, no drawer */
         <WelcomeScreen />
       )}
+      {shareOpen && <ShareModal onClose={() => setShareOpen(false)} />}
       {showSplash && <Splash onDone={dismissSplash} />}
     </>
   );
