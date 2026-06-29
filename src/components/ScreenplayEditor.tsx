@@ -5,6 +5,7 @@ import React, {
 import { useScriptStore } from '../store/scriptStore';
 import { useAppStore } from '../store/appStore';
 import { useCommentStore } from '../store/commentStore';
+import { isTranslitLang, translitWord } from '../lib/translit';
 import {
   type ElementType, type ScreenplayBlock,
   NEXT_ELEMENT, LANGUAGE_FONTS, DEFAULT_FONT, DEFAULT_SIZE,
@@ -123,6 +124,42 @@ export default function ScreenplayEditor() {
   }, [script?.id]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>, id: string, type: ElementType) => {
+    // Phonetic transliteration: on space, convert the just-typed Latin word
+    if (e.key === ' ') {
+      const s = getActiveScript();
+      if (s && isTranslitLang(s.language)) {
+        const sel = window.getSelection();
+        if (sel && sel.isCollapsed && sel.rangeCount) {
+          const range = sel.getRangeAt(0);
+          const node = range.startContainer;
+          if (node.nodeType === 3) {
+            const text = node.textContent || '';
+            const caret = range.startOffset;
+            let start = caret;
+            while (start > 0 && /\S/.test(text[start - 1])) start--;
+            const word = text.slice(start, caret);
+            if (/[a-zA-Z]/.test(word)) {
+              e.preventDefault();
+              const textNode = node as Text;
+              translitWord(word, s.language).then(tr => {
+                const before = text.slice(0, start);
+                const after = text.slice(caret);
+                textNode.textContent = before + tr + ' ' + after;
+                const pos = before.length + tr.length + 1;
+                const r = document.createRange();
+                r.setStart(textNode, Math.min(pos, (textNode.textContent || '').length));
+                r.collapse(true);
+                const s2 = window.getSelection();
+                s2?.removeAllRanges(); s2?.addRange(r);
+                (textNode.parentElement?.closest('.el-block') as HTMLElement | null)
+                  ?.dispatchEvent(new Event('input', { bubbles: true }));
+              });
+              return;
+            }
+          }
+        }
+      }
+    }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       focusTarget.current = addBlock(id, NEXT_ELEMENT[type]);
