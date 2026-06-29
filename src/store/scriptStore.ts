@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { type Script, type ScreenplayBlock, type ElementType, type Align } from '../types/screenplay';
+import { parseScripts } from '../lib/validation/scriptSchema';
+import { logger } from '../lib/logger';
 
 function generateId() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -190,9 +192,14 @@ export const useScriptStore = create<ScriptStore>()(
       // app always opens to the Home screen for you to pick a script.
       partialize: (s) => ({ scripts: s.scripts }),
       // Ignore any older persisted activeScriptId so we always start on Home.
+      // Validate persisted scripts at the boundary: corrupt/legacy entries are
+      // dropped rather than allowed to crash the app on load.
       merge: (persisted, current) => {
-        const p = (persisted ?? {}) as Partial<{ scripts: Script[] }>;
-        return { ...current, scripts: p.scripts ?? current.scripts, activeScriptId: null };
+        const p = (persisted ?? {}) as Partial<{ scripts: unknown }>;
+        if (p.scripts === undefined) return { ...current, activeScriptId: null };
+        const { scripts, dropped } = parseScripts(p.scripts);
+        if (dropped > 0) logger.warn('Dropped corrupt scripts on load', { dropped });
+        return { ...current, scripts, activeScriptId: null };
       },
     }
   )
