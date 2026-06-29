@@ -1,0 +1,21 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from .api.routes.ai import router as ai_router
+from .core.logging import logger
+
+app = FastAPI(title='Scripter AI Backend')
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['http://localhost:5173', 'http://localhost:5174'],
+    allow_methods=['POST', 'GET', 'OPTIONS'],
+    allow_headers=['*'],
+)
+
+app.include_router(ai_router, prefix='/api/ai')
+
+
+@app.get('/health')
+def health():
+    return {'status': 'ok'}

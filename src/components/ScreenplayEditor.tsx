@@ -6,6 +6,9 @@ import { useScriptStore } from '../store/scriptStore';
 import { useAppStore } from '../store/appStore';
 import { useCommentStore } from '../store/commentStore';
 import { isTranslitLang, translitWord } from '../lib/translit';
+import { plain } from '../utils/text';
+import { useRewrite } from '../hooks/useRewrite';
+import RewritePanel from './RewritePanel';
 import {
   type ElementType, type ScreenplayBlock,
   NEXT_ELEMENT, LANGUAGE_FONTS, DEFAULT_FONT, DEFAULT_SIZE,
@@ -61,9 +64,13 @@ type CommentAnchor = { x: number; y: number; quote: string; blockId: string };
 
 export default function ScreenplayEditor() {
   const { getActiveScript, updateBlock, addBlock, deleteBlock, changeBlockType } = useScriptStore();
-  const { zoom, setFocusedBlock } = useAppStore();
+  const { zoom, focusedBlockId, setFocusedBlock } = useAppStore();
+  const { loading, error, preview, start, cancel } = useRewrite();
+  const [rewriteOpen, setRewriteOpen] = useState(false);
   const addComment = useCommentStore(s => s.add);
   const script = getActiveScript();
+
+  const focusedBlock = script?.blocks.find(b => b.id === focusedBlockId) ?? null;
 
   const refs = useRef<Record<string, HTMLDivElement | null>>({});
   const focusTarget = useRef<string | null>(null);
@@ -110,6 +117,11 @@ export default function ScreenplayEditor() {
     focusTarget.current = null;
   });
 
+  useEffect(() => {
+    if (!rewriteOpen || !focusedBlock) return;
+    start(plain(focusedBlock.content), focusedBlock.type);
+  }, [rewriteOpen, focusedBlock, start]);
+
   // Drop the cursor straight into the page the moment a script opens
   useEffect(() => {
     if (!script) return;
@@ -138,35 +150,37 @@ export default function ScreenplayEditor() {
           const node = range.startContainer;
           if (node.nodeType === 3) {
             const textNode = node as Text;
-            const caret = range.startOffset;            // the space lands here
+            const caret = range.startOffset;
             const text = textNode.textContent || '';
             let start = caret;
             while (start > 0 && /\S/.test(text[start - 1])) start--;
             const word = text.slice(start, caret);
             if (/[a-zA-Z]/.test(word)) {
-              translitWord(word, s.language).then(tr => {
-                if (tr === word) return;                 // offline / nothing to change
-                const cur = textNode.textContent || '';
-                if (cur.slice(start, caret) !== word) return; // user edited it → bail safely
-                const delta = tr.length - word.length;
-                // read the live caret (user may have kept typing) so we can shift it
-                const live = window.getSelection();
-                let off: number | null = null;
-                if (live && live.rangeCount) {
-                  const lr = live.getRangeAt(0);
-                  if (lr.startContainer === textNode) off = lr.startOffset;
-                }
-                textNode.textContent = cur.slice(0, start) + tr + cur.slice(caret);
-                if (off !== null) {
-                  const max = (textNode.textContent || '').length;
-                  const r = document.createRange();
-                  r.setStart(textNode, Math.min(Math.max(off >= caret ? off + delta : off, 0), max));
-                  r.collapse(true);
-                  live!.removeAllRanges(); live!.addRange(r);
-                }
-                (textNode.parentElement?.closest('.el-block') as HTMLElement | null)
-                  ?.dispatchEvent(new Event('input', { bubbles: true }));
-              });
+              setTimeout(() => {
+                const updated = textNode.textContent || '';
+                if (updated[caret] !== ' ') return;
+                if (updated.slice(start, caret) !== word) return;
+                translitWord(word, s.language).then(tr => {
+                  if (tr === word) return;
+                  const next = textNode.textContent || '';
+                  if (next.slice(start, caret) !== word) return;
+                  const delta = tr.length - word.length;
+                  textNode.textContent = next.slice(0, start) + tr + next.slice(caret);
+                  const live = window.getSelection();
+                  if (live && live.rangeCount) {
+                    const lr = live.getRangeAt(0);
+                    if (lr.startContainer === textNode) {
+                      const newOffset = Math.min(Math.max(lr.startOffset + delta, 0), (textNode.textContent || '').length);
+                      const r = document.createRange();
+                      r.setStart(textNode, newOffset);
+                      r.collapse(true);
+                      live.removeAllRanges(); live.addRange(r);
+                    }
+                  }
+                  (textNode.parentElement?.closest('.el-block') as HTMLElement | null)
+                    ?.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+              }, 0);
             }
           }
         }
@@ -242,6 +256,30 @@ export default function ScreenplayEditor() {
           </div>
         </div>
       </div>
+
+      {focusedBlock && (
+        <button
+          className="rewrite-trigger"
+          onClick={() => setRewriteOpen(true)}
+          disabled={rewriteOpen}
+        >
+          Rewrite with AI
+        </button>
+      )}
+
+      {rewriteOpen && focusedBlock && (
+        <RewritePanel
+          block={focusedBlock}
+          preview={preview}
+          loading={loading}
+          error={error}
+          onCancel={() => { cancel(); setRewriteOpen(false); }}
+          onAccept={() => {
+            if (preview) updateBlock(focusedBlock.id, preview);
+            setRewriteOpen(false);
+          }}
+        />
+      )}
 
       {/* Floating "Comment" button on text selection */}
       {anchor && !composing && (

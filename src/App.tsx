@@ -20,7 +20,7 @@ const SHARED_ID = new URLSearchParams(window.location.search).get('s');
 
 export default function App() {
   const { getActiveScript, setActiveScript } = useScriptStore();
-  const { theme, mode, focusMode, shareOpen, setShareOpen, findOpen } = useAppStore();
+  const { mode, template, focusMode, shareOpen, setShareOpen, findOpen } = useAppStore();
   const { user, init } = useAuthStore();
   const script = getActiveScript();
 
@@ -40,12 +40,17 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const dismissSplash = useCallback(() => setShowSplash(false), []);
 
-  // Apply mode + theme to <html>
+  // Apply mode + theme + template to <html>
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-mode', mode);
-    root.setAttribute('data-theme', theme === 'noir' ? '' : theme);
-  }, [mode, theme]);
+    root.setAttribute('data-template', template);
+  }, [mode, template]);
+
+  // Keep the browser tab title in sync with the app.
+  useEffect(() => {
+    document.title = 'Scripter — Indian Screenplay Writer';
+  }, []);
 
   const handleExportPDF = useCallback(async () => {
     if (!script) return;

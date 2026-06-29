@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useScriptStore } from '../store/scriptStore';
-import { useAppStore, THEMES, type ThemeId } from '../store/appStore';
+import { useAppStore, type ThemeId } from '../store/appStore';
 import { type ScriptLanguage } from '../types/screenplay';
 import { groupLocations } from '../utils/parseScenes';
 import { downloadDoc } from '../utils/exportDoc';
@@ -17,13 +17,12 @@ const LANGS: { value: ScriptLanguage; label: string }[] = [
   { value:'malayalam', label:'മലയാളം'   },
 ];
 
-type Tab = 'scenes' | 'cast' | 'locs' | 'theme';
+type Tab = 'scenes' | 'cast' | 'locs';
 
 const TABS: { id: Tab; label: string }[] = [
   { id:'scenes', label:'Scenes' },
   { id:'cast',   label:'Cast'   },
   { id:'locs',   label:'Places' },
-  { id:'theme',  label:'Themes' },
 ];
 
 export default function Drawer({ onExportPDF }: Props) {
@@ -32,7 +31,7 @@ export default function Drawer({ onExportPDF }: Props) {
     createScript, deleteScript, setActiveScript,
     updateScriptMeta, getActiveScript,
   } = useScriptStore();
-  const { drawerOpen, theme, setTheme } = useAppStore();
+  const { drawerOpen } = useAppStore();
   const [tab, setTab] = useState<Tab>('scenes');
   const [dlOpen, setDlOpen] = useState(false);
 
@@ -134,43 +133,6 @@ export default function Drawer({ onExportPDF }: Props) {
           </>
         )}
 
-        {/* THEMES */}
-        {tab === 'theme' && (
-          <>
-            <div className="drawer__head">Colour Themes</div>
-            {THEMES.map(t => (
-              <button key={t.id} className={`d-theme ${theme === t.id ? 'sel' : ''}`}
-                style={theme === t.id ? { borderColor: t.accent } : undefined}
-                onClick={() => setTheme(t.id as ThemeId)}>
-                <span className="d-theme__sw">
-                  <i style={{ background: t.accent }} />
-                  <i style={{ background: t.secondary }} />
-                </span>
-                <span>
-                  <span className="d-theme__nm" style={{ display:'block' }}>{t.name}</span>
-                  <span className="d-theme__ds">{t.description}</span>
-                </span>
-                {theme === t.id && <span className="d-theme__ck">✓</span>}
-              </button>
-            ))}
-            <div className="drawer__head" style={{ marginTop: 8 }}>Manage</div>
-            <button className="d-theme" onClick={createScript} style={{ width:'calc(100% - 20px)' }}>
-              <span style={{ fontSize:16 }}>＋</span>
-              <span className="d-theme__nm">New Script</span>
-            </button>
-            {scripts.map(s => (
-              <button key={s.id} className={`d-theme ${s.id === activeScriptId ? 'sel' : ''}`}
-                onClick={() => setActiveScript(s.id)} style={{ width:'calc(100% - 20px)' }}>
-                <span style={{ flex:1, textAlign:'left' }}>
-                  <span className="d-theme__nm" style={{ display:'block' }}>{s.title || 'Untitled'}</span>
-                  <span className="d-theme__ds">{s.blocks.filter(b=>b.type==='scene_heading').length} scenes</span>
-                </span>
-                <span onClick={e => { e.stopPropagation(); if (confirm('Delete this script?')) deleteScript(s.id); }}
-                  style={{ color:'#ef4444', fontSize:11, padding:'2px 6px' }}>✕</span>
-              </button>
-            ))}
-          </>
-        )}
       </div>
 
       {/* Footer */}
