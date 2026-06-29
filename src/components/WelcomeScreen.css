@@ -1,9 +1,10 @@
 .welcome {
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 64px 24px;
+  padding: 56px 24px;
   background: radial-gradient(circle at 50% -10%, rgba(245, 208, 96, 0.08), transparent 28%),
               radial-gradient(circle at 90% 20%, rgba(245, 208, 96, 0.06), transparent 24%),
               linear-gradient(180deg, #060607 0%, #09090c 42%, #050506 100%);

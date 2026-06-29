@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useScriptStore } from '../store/scriptStore';
-import { useAppStore } from '../store/appStore';
+import { useAppStore, type TemplateId } from '../store/appStore';
 import { useAuthStore } from '../store/authStore';
 import { cloudEnabled } from '../lib/supabase';
 
@@ -20,7 +20,7 @@ function InfinityMark() {
 
 export default function TopBar() {
   const { getActiveScript, setActiveScript } = useScriptStore();
-  const { mode, toggleMode, drawerOpen, toggleDrawer, zoom, zoomIn, zoomOut, resetZoom,
+  const { mode, toggleMode, template, setTemplate, drawerOpen, toggleDrawer, zoom, zoomIn, zoomOut, resetZoom,
           focusMode, toggleFocusMode, setFocusMode, setShareOpen, setFindOpen } = useAppStore();
   const { user } = useAuthStore();
   const script = getActiveScript();
@@ -124,6 +124,24 @@ export default function TopBar() {
             <button onClick={zoomIn} title="Zoom in (Ctrl +)">＋</button>
           </div>
         )}
+
+        {/* Theme picker — choose your look (moved here from the home page) */}
+        <select
+          className="themepick"
+          value={template}
+          onChange={(e) => setTemplate(e.target.value as TemplateId)}
+          title="Theme — choose your look"
+          aria-label="Theme"
+          style={{
+            height: 30, borderRadius: 8, padding: '0 8px', fontSize: 12, cursor: 'pointer',
+            border: '1px solid var(--line)', background: 'var(--bg-card)', color: 'var(--text)',
+            fontFamily: 'var(--font-ui)',
+          }}
+        >
+          <option value="creative">Creative</option>
+          <option value="cinematic">Cinematic</option>
+          <option value="studio">Studio</option>
+        </select>
 
         {/* Sun / Moon */}
         <div className="modeswitch">
