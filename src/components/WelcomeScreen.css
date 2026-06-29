@@ -344,9 +344,9 @@
   color: var(--accent);
   margin-top: auto;
 }
-.template-card--cinematic .template-card__preview { background: linear-gradient(135deg, #11131a, #1b2030); }
-.template-card--creative .template-card__preview { background: linear-gradient(135deg, #4f46e5, #c084fc, #0f172a); }
-.template-card--studio .template-card__preview { background: linear-gradient(135deg, #f4e4ca, #d8b77d, #e2c29a); }
+.template-card--creative .template-card__preview { background: linear-gradient(135deg, #e7e9ed, #8b95a4 55%, #1b1e24); }
+.template-card--cinematic .template-card__preview { background: linear-gradient(135deg, #1a1430, #7c3aed 55%, #c4b1ff); }
+.template-card--studio .template-card__preview { background: linear-gradient(135deg, #faf6ec, #cda36a 55%, #6f4a25); }
 
 .welcome__foot {
   margin: 0;

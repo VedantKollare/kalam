@@ -17,9 +17,9 @@ const FEATS: { icon: ReactNode; label: string }[] = [
 type TemplateId = 'cinematic' | 'creative' | 'studio';
 
 const TEMPLATES: { id: TemplateId; title: string; subtitle: string; description: string }[] = [
-  { id: 'cinematic', title: 'Cinematic', subtitle: 'Dark film board', description: 'A dramatic stage feel with glowing gold accents and a polished night studio.' },
-  { id: 'creative', title: 'Creative', subtitle: 'Colorful studio', description: 'A vivid gradient workspace with glassy cards and punchy painterly contrast.' },
-  { id: 'studio', title: 'Studio', subtitle: 'Warm paper', description: 'A soft archival page with warm paper tones and slow, elegant typography.' },
+  { id: 'creative', title: 'Creative', subtitle: 'Steel · white · black', description: 'A clean, minimal workspace in steel grey, white and black. The default look.' },
+  { id: 'cinematic', title: 'Cinematic', subtitle: 'Purple · lavender', description: 'A dramatic, moody interface in deep purple with soft lavender accents.' },
+  { id: 'studio', title: 'Studio', subtitle: 'Cream · coffee', description: 'A warm, archival page in cream and coffee tones for long writing sessions.' },
 ];
 
 const LANG_LABEL: Record<string, string> = {
@@ -39,14 +39,14 @@ export default function WelcomeScreen() {
           <div className="welcome__hero-top">
             <div className="welcome__brand">
               <div className="welcome__icon">
-                <svg width="40" height="40" viewBox="0 0 200 100" aria-label="Scriptr">
+                <svg width="40" height="40" viewBox="0 0 200 100" aria-label="Scripter">
                   <path d="M 100,50 C 120,18 182,18 182,50 C 182,82 120,82 100,50 C 80,18 18,18 18,50 C 18,82 80,82 100,50 Z"
                     fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round" />
                 </svg>
               </div>
               <div>
                 <p className="welcome__eyebrow">Indian Screenplay Writer</p>
-                <h1 className="welcome__title">Scriptr</h1>
+                <h1 className="welcome__title">Scripter</h1>
               </div>
             </div>
           </div>

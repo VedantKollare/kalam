@@ -36,8 +36,8 @@ interface AppStore {
 export const useAppStore = create<AppStore>()(
   persist(
     (set) => ({
-      mode: 'dark',
-      template: 'cinematic',
+      mode: 'light',
+      template: 'creative',
       zoom: 160,          // sheet opens zoomed-in by default
       drawerOpen: false,
       focusMode: false,

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useScriptStore } from '../store/scriptStore';
-import { useAppStore, type ThemeId } from '../store/appStore';
+import { useAppStore } from '../store/appStore';
 import { type ScriptLanguage } from '../types/screenplay';
 import { groupLocations } from '../utils/parseScenes';
 import { downloadDoc } from '../utils/exportDoc';
@@ -26,11 +26,7 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 export default function Drawer({ onExportPDF }: Props) {
-  const {
-    scripts, activeScriptId,
-    createScript, deleteScript, setActiveScript,
-    updateScriptMeta, getActiveScript,
-  } = useScriptStore();
+  const { updateScriptMeta, getActiveScript } = useScriptStore();
   const { drawerOpen } = useAppStore();
   const [tab, setTab] = useState<Tab>('scenes');
   const [dlOpen, setDlOpen] = useState(false);

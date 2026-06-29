@@ -92,6 +92,72 @@
   --c-byline:  #5a4226;   /* "Written by …" dark brown */
 }
 
+/* ══════════════════════════════════════════════════════════════
+   THEMES (templates) — three curated identities. `data-template` is
+   always present (App.tsx). Each defines a dark palette (default) and
+   a light palette; they layer on top of the :root / [data-mode] base.
+   • creative  — steel grey / white / black   (default, minimal)
+   • cinematic — purple / lavender            (dramatic)
+   • studio    — cream / coffee               (warm, archival)
+══════════════════════════════════════════════════════════════ */
+
+/* ---- CREATIVE : steel / white / black (default) ---- */
+[data-template="creative"] {
+  --accent: #aab4c4; --accent-2: #7c8696;
+  --accent-grad: linear-gradient(135deg, #cdd4de, #8b95a4);
+  --accent-soft: rgba(170,180,196,0.14);
+  --bg-root:#0b0c0e; --bg-header:#111316; --bg-panel:#0e0f12; --bg-canvas:#0a0b0d; --bg-card:#16181c;
+  --page-bg:#15171b; --sheet-bg:#15171b; --canvas-bg:#0c0d0f;
+  --text:#eceef1; --text-2:#9aa1ad; --text-3:#5b626d;
+}
+[data-template="creative"][data-mode="light"] {
+  --accent:#5b6675; --accent-2:#3f4754;
+  --accent-grad: linear-gradient(135deg, #8b95a4, #5b6675);
+  --accent-soft: rgba(91,102,117,0.12);
+  --bg-root:#eef0f3; --bg-header:#ffffff; --bg-panel:#f5f6f8; --bg-canvas:#e7e9ed; --bg-card:#ffffff;
+  --page-bg:#ffffff; --sheet-bg:#ffffff; --canvas-bg:#e7e9ed;
+  --text:#14171b; --text-2:#5b626d; --text-3:#99a1ad;
+  --c-scene:#14171b; --c-char:#2b303a; --c-trans:#14171b; --c-byline:#3f4754;
+}
+
+/* ---- CINEMATIC : purple / lavender ---- */
+[data-template="cinematic"] {
+  --accent:#b69cff; --accent-2:#8b5cf6;
+  --accent-grad: linear-gradient(135deg, #c9b6ff, #7c3aed);
+  --accent-soft: rgba(182,156,255,0.16);
+  --bg-root:#0b0913; --bg-header:#110d1d; --bg-panel:#0e0b18; --bg-canvas:#090711; --bg-card:#181327;
+  --page-bg:#161126; --sheet-bg:#161126; --canvas-bg:#0a0812;
+  --text:#ece9f6; --text-2:#9d93b8; --text-3:#5f567a;
+}
+[data-template="cinematic"][data-mode="light"] {
+  --accent:#7c3aed; --accent-2:#6d28d9;
+  --accent-grad: linear-gradient(135deg, #a78bfa, #7c3aed);
+  --accent-soft: rgba(124,58,237,0.12);
+  --bg-root:#efeafc; --bg-header:#ffffff; --bg-panel:#f6f2fe; --bg-canvas:#e8e1f7; --bg-card:#ffffff;
+  --page-bg:#fbfaff; --sheet-bg:#fbfaff; --canvas-bg:#e8e1f7;
+  --text:#241b33; --text-2:#6b6088; --text-3:#a99fc4;
+  --c-scene:#6d28d9; --c-char:#7c3aed; --c-trans:#6d28d9; --c-byline:#6d28d9;
+}
+
+/* ---- STUDIO : cream / coffee ---- */
+[data-template="studio"] {
+  --accent:#cda36a; --accent-2:#a9763f;
+  --accent-grad: linear-gradient(135deg, #e6c590, #a9763f);
+  --accent-soft: rgba(205,163,106,0.15);
+  --bg-root:#14100b; --bg-header:#1a140d; --bg-panel:#16110b; --bg-canvas:#100c08; --bg-card:#211a10;
+  --page-bg:#1e1810; --sheet-bg:#1e1810; --canvas-bg:#110d08;
+  --text:#efe6d6; --text-2:#b3a387; --text-3:#6f6450;
+}
+[data-template="studio"][data-mode="light"] {
+  --accent:#a9763f; --accent-2:#875a2c;
+  --accent-grad: linear-gradient(135deg, #cda36a, #875a2c);
+  --accent-soft: rgba(169,118,63,0.13);
+  --bg-root:#e7e0cf; --bg-header:#f6f0e2; --bg-panel:#f1ebdc; --bg-canvas:#e9e2d2; --bg-card:#faf6ec;
+  --page-bg:#fdfbf5; --sheet-bg:#fdfbf5; --canvas-bg:#e9e2d2;
+  --text:#2a251c; --text-2:#837a67; --text-3:#a99f8a;
+  --c-scene:#3b2a18; --c-char:#3b2a18; --c-trans:#3b2a18; --c-byline:#5a4226;
+}
+
 /* In dark mode the scene heading follows the accent.
    In light mode it stays near-black (set above). */
 
