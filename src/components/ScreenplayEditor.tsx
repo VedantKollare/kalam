@@ -124,8 +124,12 @@ export default function ScreenplayEditor() {
   }, [script?.id]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>, id: string, type: ElementType) => {
-    // Phonetic transliteration: on space, convert the just-typed Latin word
-    if (e.key === ' ') {
+    // Phonetic transliteration: let the space type INSTANTLY, then swap the
+    // just-finished Latin word for its Indian-script form in the background.
+    // (We intentionally do NOT preventDefault — the old code blocked every space
+    //  until the network call returned, which felt like you had to press space
+    //  twice. This now works the same way for Hindi, Tamil, Telugu & Malayalam.)
+    if (e.key === ' ' && !e.ctrlKey && !e.metaKey && !e.altKey) {
       const s = getActiveScript();
       if (s && isTranslitLang(s.language)) {
         const sel = window.getSelection();
@@ -133,28 +137,36 @@ export default function ScreenplayEditor() {
           const range = sel.getRangeAt(0);
           const node = range.startContainer;
           if (node.nodeType === 3) {
-            const text = node.textContent || '';
-            const caret = range.startOffset;
+            const textNode = node as Text;
+            const caret = range.startOffset;            // the space lands here
+            const text = textNode.textContent || '';
             let start = caret;
             while (start > 0 && /\S/.test(text[start - 1])) start--;
             const word = text.slice(start, caret);
             if (/[a-zA-Z]/.test(word)) {
-              e.preventDefault();
-              const textNode = node as Text;
               translitWord(word, s.language).then(tr => {
-                const before = text.slice(0, start);
-                const after = text.slice(caret);
-                textNode.textContent = before + tr + ' ' + after;
-                const pos = before.length + tr.length + 1;
-                const r = document.createRange();
-                r.setStart(textNode, Math.min(pos, (textNode.textContent || '').length));
-                r.collapse(true);
-                const s2 = window.getSelection();
-                s2?.removeAllRanges(); s2?.addRange(r);
+                if (tr === word) return;                 // offline / nothing to change
+                const cur = textNode.textContent || '';
+                if (cur.slice(start, caret) !== word) return; // user edited it → bail safely
+                const delta = tr.length - word.length;
+                // read the live caret (user may have kept typing) so we can shift it
+                const live = window.getSelection();
+                let off: number | null = null;
+                if (live && live.rangeCount) {
+                  const lr = live.getRangeAt(0);
+                  if (lr.startContainer === textNode) off = lr.startOffset;
+                }
+                textNode.textContent = cur.slice(0, start) + tr + cur.slice(caret);
+                if (off !== null) {
+                  const max = (textNode.textContent || '').length;
+                  const r = document.createRange();
+                  r.setStart(textNode, Math.min(Math.max(off >= caret ? off + delta : off, 0), max));
+                  r.collapse(true);
+                  live!.removeAllRanges(); live!.addRange(r);
+                }
                 (textNode.parentElement?.closest('.el-block') as HTMLElement | null)
                   ?.dispatchEvent(new Event('input', { bubbles: true }));
               });
-              return;
             }
           }
         }

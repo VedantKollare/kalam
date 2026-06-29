@@ -39,7 +39,7 @@ export default function WelcomeScreen() {
 
         <div className="welcome__auth"><AuthControl /></div>
 
-        {hasScripts ? (
+        {hasScripts && (
           <div className="home-list">
             <div className="home-list__head">Your Scripts</div>
             {scripts.map(s => (
@@ -62,16 +62,16 @@ export default function WelcomeScreen() {
               </div>
             ))}
           </div>
-        ) : (
-          <div className="welcome__feats">
-            {FEATS.map(f => (
-              <div key={f.label} className="welcome__feat">
-                {f.icon}
-                <span>{f.label}</span>
-              </div>
-            ))}
-          </div>
         )}
+
+        <div className="welcome__feats">
+          {FEATS.map(f => (
+            <div key={f.label} className="welcome__feat">
+              {f.icon}
+              <span>{f.label}</span>
+            </div>
+          ))}
+        </div>
 
         <p className="welcome__tag">For stories that never die.</p>
       </div>
