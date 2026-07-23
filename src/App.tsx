@@ -13,7 +13,7 @@ import Splash from './components/Splash';
 import ShareModal from './components/ShareModal';
 import SharedView from './components/SharedView';
 import FindBar from './components/FindBar';
-import LuxuryLandingPage from './components/LuxuryLandingPage';
+import WelcomeScreen from './components/WelcomeScreen';
 import { exportToPDF } from './utils/exportPDF';
 
 const SHARED_ID = new URLSearchParams(window.location.search).get('s');
@@ -77,7 +77,7 @@ export default function App() {
         </>
       ) : (
         /* Home — no header, no drawer */
-        <LuxuryLandingPage />
+        <WelcomeScreen />
       )}
       {script && findOpen && <FindBar />}
       {shareOpen && <ShareModal onClose={() => setShareOpen(false)} />}

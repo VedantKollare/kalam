@@ -138,7 +138,7 @@ export default function Drawer({ onExportPDF }: Props) {
             <div className="stat"><div className="stat__v">{scenes.length}</div><div className="stat__l">Scenes</div></div>
             <div className="stat"><div className="stat__v">{words}</div><div className="stat__l">Words</div></div>
             <div className="stat"><div className="stat__v">~{pages}</div><div className="stat__l">Pages</div></div>
-            <div className="stat"><div className="stat__v">~{pages}m</div><div className="stat__l">Screen time</div></div>
+            <div className="stat stat--wide"><div className="stat__l">Screen time</div><div className="stat__v">~{pages}m</div></div>
           </div>
 
           <div style={{ display:'flex', gap:8, position:'relative' }}>

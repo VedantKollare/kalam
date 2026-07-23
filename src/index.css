@@ -360,6 +360,14 @@ body {
 .stat { background: var(--bg-card); border: 1px solid var(--line); border-radius: 9px; padding: 8px 4px; text-align: center; }
 .stat__v { font-size: 14px; font-weight: 800; color: var(--text); line-height: 1; }
 .stat__l { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-3); margin-top: 3px; }
+/* Full-width stat: spans all three columns and reads as one wide bar
+   (value and label side by side instead of stacked). */
+.stat--wide {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; padding: 9px 12px; text-align: left;
+}
+.stat--wide .stat__l { margin-top: 0; }
 
 /* ══════════════════════════════════════════════════════════════
    BUTTONS / INPUTS
