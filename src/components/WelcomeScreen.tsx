@@ -29,7 +29,7 @@ export default function WelcomeScreen() {
           <div className="welcome__hero-top">
             <div className="welcome__brand">
               <div className="welcome__icon">
-                <svg width="40" height="40" viewBox="0 0 200 100" aria-label="Scripter">
+                <svg width="30" height="15" viewBox="0 0 200 100" aria-label="Scripter">
                   <path d="M 100,50 C 120,18 182,18 182,50 C 182,82 120,82 100,50 C 80,18 18,18 18,50 C 18,82 80,82 100,50 Z"
                     fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round" />
                 </svg>
@@ -41,10 +41,15 @@ export default function WelcomeScreen() {
             </div>
           </div>
 
+          <p className="welcome__tag">For stories that never die.</p>
+
           <p className="welcome__langs welcome__langs--centered">English · हिन्दी · தமிழ் · తెలుగు · മലയാളം · Hinglish</p>
 
           <div className="welcome__actions">
-            <button className="btn-accent welcome__cta" onClick={createScript}>＋ New Script</button>
+            <button className="btn-accent welcome__cta" onClick={createScript}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              New Script
+            </button>
           </div>
         </section>
 
@@ -61,7 +66,10 @@ export default function WelcomeScreen() {
                     </div>
                   </div>
                   <div className="home-script__actions">
-                    <span className="home-script__open">Open →</span>
+                    <span className="home-script__open">
+                      Open
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </span>
                     <button
                       className="home-script__del"
                       title="Delete script"
@@ -69,7 +77,9 @@ export default function WelcomeScreen() {
                         e.stopPropagation();
                         if (confirm(`Delete "${s.title || 'Untitled'}"?\nThis cannot be undone.`)) deleteScript(s.id);
                       }}
-                    >🗑</button>
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                    </button>
                   </div>
                 </div>
               ))}

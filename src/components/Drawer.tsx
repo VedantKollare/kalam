@@ -138,14 +138,17 @@ export default function Drawer({ onExportPDF }: Props) {
             <div className="stat"><div className="stat__v">{scenes.length}</div><div className="stat__l">Scenes</div></div>
             <div className="stat"><div className="stat__v">{words}</div><div className="stat__l">Words</div></div>
             <div className="stat"><div className="stat__v">~{pages}</div><div className="stat__l">Pages</div></div>
+            <div className="stat"><div className="stat__v">~{pages}m</div><div className="stat__l">Screen time</div></div>
           </div>
 
           <div style={{ display:'flex', gap:8, position:'relative' }}>
             <button className="btn-accent" style={{ flex:1 }} onClick={onExportPDF}>
-              <span>↗</span> Export PDF
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+              Export PDF
             </button>
             <button className="btn-outline" style={{ flex:1 }} onClick={() => setDlOpen(v => !v)}>
-              ⬇ Download
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              Download
             </button>
 
             {dlOpen && (

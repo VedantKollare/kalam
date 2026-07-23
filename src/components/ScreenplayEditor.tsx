@@ -6,9 +6,6 @@ import { useScriptStore } from '../store/scriptStore';
 import { useAppStore } from '../store/appStore';
 import { useCommentStore } from '../store/commentStore';
 import { isTranslitLang, translitWord } from '../lib/translit';
-import { plain } from '../utils/text';
-import { useRewrite } from '../hooks/useRewrite';
-import RewritePanel from './RewritePanel';
 import {
   type ElementType, type ScreenplayBlock,
   NEXT_ELEMENT, LANGUAGE_FONTS, DEFAULT_FONT, DEFAULT_SIZE,
@@ -64,13 +61,9 @@ type CommentAnchor = { x: number; y: number; quote: string; blockId: string };
 
 export default function ScreenplayEditor() {
   const { getActiveScript, updateBlock, addBlock, deleteBlock, changeBlockType } = useScriptStore();
-  const { zoom, focusedBlockId, setFocusedBlock } = useAppStore();
-  const { loading, error, preview, start, cancel } = useRewrite();
-  const [rewriteOpen, setRewriteOpen] = useState(false);
+  const { zoom, setFocusedBlock } = useAppStore();
   const addComment = useCommentStore(s => s.add);
   const script = getActiveScript();
-
-  const focusedBlock = script?.blocks.find(b => b.id === focusedBlockId) ?? null;
 
   const refs = useRef<Record<string, HTMLDivElement | null>>({});
   const focusTarget = useRef<string | null>(null);
@@ -116,11 +109,6 @@ export default function ScreenplayEditor() {
     if (el) placeCaretEnd(el);
     focusTarget.current = null;
   });
-
-  useEffect(() => {
-    if (!rewriteOpen || !focusedBlock) return;
-    start(plain(focusedBlock.content), focusedBlock.type);
-  }, [rewriteOpen, focusedBlock, start]);
 
   // Drop the cursor straight into the page the moment a script opens
   useEffect(() => {
@@ -256,30 +244,6 @@ export default function ScreenplayEditor() {
           </div>
         </div>
       </div>
-
-      {focusedBlock && (
-        <button
-          className="rewrite-trigger"
-          onClick={() => setRewriteOpen(true)}
-          disabled={rewriteOpen}
-        >
-          Rewrite with AI
-        </button>
-      )}
-
-      {rewriteOpen && focusedBlock && (
-        <RewritePanel
-          block={focusedBlock}
-          preview={preview}
-          loading={loading}
-          error={error}
-          onCancel={() => { cancel(); setRewriteOpen(false); }}
-          onAccept={() => {
-            if (preview) updateBlock(focusedBlock.id, preview);
-            setRewriteOpen(false);
-          }}
-        />
-      )}
 
       {/* Floating "Comment" button on text selection */}
       {anchor && !composing && (

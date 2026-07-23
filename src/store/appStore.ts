@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type Mode = 'light' | 'dark';
-export type TemplateId = 'cinematic' | 'creative' | 'studio';
+export type TemplateId = 'cinematic' | 'classic' | 'studio';
 
 const ZOOM_MIN = 50, ZOOM_MAX = 200, ZOOM_STEP = 10;
 
@@ -36,8 +36,8 @@ interface AppStore {
 export const useAppStore = create<AppStore>()(
   persist(
     (set) => ({
-      mode: 'light',
-      template: 'creative',
+      mode: 'dark',
+      template: 'classic',
       zoom: 160,          // sheet opens zoomed-in by default
       drawerOpen: false,
       focusMode: false,
@@ -68,7 +68,10 @@ export const useAppStore = create<AppStore>()(
       partialize: (s) => ({ mode: s.mode, template: s.template }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<Pick<AppStore, 'mode' | 'template'>>;
-        return { ...current, mode: p.mode ?? current.mode, template: p.template ?? current.template };
+        // migrate 'creative' (old name) to 'classic'
+        const rawTpl = p.template ?? current.template;
+        const template: TemplateId = (rawTpl as string) === 'creative' ? 'classic' : rawTpl as TemplateId;
+        return { ...current, mode: p.mode ?? current.mode, template };
       },
     },
   ),
