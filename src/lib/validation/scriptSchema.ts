@@ -2,7 +2,7 @@
 //
 // localStorage is untrusted input: it can be stale, hand-edited, or corrupt
 // (we lost the whole project once). These zod schemas mirror the domain model
-// and let us load defensively — dropping unrecoverable entries instead of
+// and let us load defensively - dropping unrecoverable entries instead of
 // crashing the app on a bad blob.
 
 import { z } from 'zod';

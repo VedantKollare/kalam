@@ -1,4 +1,4 @@
-// Visual tokens for screenplay presentation — fonts and element colours.
+// Visual tokens for screenplay presentation - fonts and element colours.
 // Split out of the domain model so styling can evolve independently of the
 // data model (SRP). Import these only from presentation code.
 

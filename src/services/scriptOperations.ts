@@ -1,4 +1,4 @@
-// Screenplay business logic — pure, framework-free operations on a Script.
+// Screenplay business logic - pure, framework-free operations on a Script.
 //
 // Extracted out of the Zustand store so the rules (how blocks are inserted,
 // guarded, moved, retyped) live in one place, are unit-testable without React,
@@ -13,7 +13,7 @@ type MetaPatch = Partial<Pick<Script, 'title' | 'author' | 'language' | 'font' |
 
 const touch = (s: Script): Script => ({ ...s, updatedAt: Date.now() });
 
-/** A fresh script: one empty scene heading — a clean, inviting blank line. */
+/** A fresh script: one empty scene heading - a clean, inviting blank line. */
 export function createDefaultScript(): Script {
   const now = Date.now();
   return {

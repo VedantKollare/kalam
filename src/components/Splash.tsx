@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 interface Props { onDone: () => void }
 
 /**
- * Startup splash — a single warm-golden infinity is drawn by hand,
+ * Startup splash - a single warm-golden infinity is drawn by hand,
  * the tagline rises, then the whole thing fades into the app.
  * Click anywhere to skip.
  */

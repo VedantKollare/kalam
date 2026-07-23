@@ -1,5 +1,5 @@
 // Framework-free domain model for a screenplay.
-// Pure types + structural constants only — NO visual/UI tokens (those live in
+// Pure types + structural constants only - NO visual/UI tokens (those live in
 // src/theme/tokens.ts). This separation keeps the domain reusable by the future
 // backend, tests, and AI services without dragging in presentation concerns.
 
@@ -36,7 +36,7 @@ export interface Script {
   updatedAt: number;
 }
 
-/** Every element type the editor understands — the single source of truth. */
+/** Every element type the editor understands - the single source of truth. */
 export const ELEMENT_TYPES: readonly ElementType[] = [
   'scene_heading', 'action', 'character', 'parenthetical',
   'dialogue', 'transition', 'song', 'intermission',

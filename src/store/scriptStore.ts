@@ -104,7 +104,7 @@ export const useScriptStore = create<ScriptStore>()(
     }),
     {
       name: 'scripter-storage',
-      // Persist the scripts themselves, but NOT which one was open — so the app
+      // Persist the scripts themselves, but NOT which one was open - so the app
       // always opens to the Home screen for you to pick a script.
       partialize: (s) => ({ scripts: s.scripts }),
       // Validate persisted scripts at the boundary: corrupt/legacy entries are

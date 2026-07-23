@@ -7,7 +7,7 @@ export default function AuthControl() {
   const [email, setEmail] = useState('');
   const [open, setOpen] = useState(false);
 
-  if (!cloudEnabled) return null; // offline build — no account UI
+  if (!cloudEnabled) return null; // offline build - no account UI
 
   // Signed in
   if (user) {
@@ -24,7 +24,7 @@ export default function AuthControl() {
   if (sent) {
     return (
       <div className="auth auth--sent">
-        ✉️ Check your inbox — we sent a sign-in link to <b>{email}</b>.
+        ✉️ Check your inbox. We sent a sign-in link to <b>{email}</b>.
         <button className="auth__link" onClick={() => { resetMail(); setOpen(true); }}>Use another email</button>
       </div>
     );

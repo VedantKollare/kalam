@@ -80,7 +80,7 @@ export default function Drawer({ onExportPDF }: Props) {
               : scenes.map((s, i) => (
                 <div key={s.id} className="d-scene" onClick={() => jumpToScene(s.id)}>
                   <span className="d-scene__n">{i + 1}</span>
-                  <span className="d-scene__h">{plain(s.content) || '—'}</span>
+                  <span className="d-scene__h">{plain(s.content) || 'Untitled scene'}</span>
                 </div>
               ))}
           </>

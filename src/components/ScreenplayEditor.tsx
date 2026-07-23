@@ -12,7 +12,7 @@ import {
 } from '../types/screenplay';
 
 const PLACEHOLDERS: Record<ElementType, string> = {
-  scene_heading: 'INT. / EXT.  —  where are we?',
+  scene_heading: 'INT. / EXT.  -  where are we?',
   action:        'What happens…',
   character:     'WHO speaks',
   parenthetical: '(how they say it)',
@@ -22,7 +22,7 @@ const PLACEHOLDERS: Record<ElementType, string> = {
   song:          'Song / lyric…',
 };
 
-/* Per-block — HTML content set on mount only (cursor-safe), supports inline B/I/U */
+/* Per-block - HTML content set on mount only (cursor-safe), supports inline B/I/U */
 interface BlockProps {
   block: ScreenplayBlock;
   onKeyDown: (e: KeyboardEvent<HTMLDivElement>, id: string, type: ElementType) => void;
@@ -126,7 +126,7 @@ export default function ScreenplayEditor() {
   const handleKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>, id: string, type: ElementType) => {
     // Phonetic transliteration: let the space type INSTANTLY, then swap the
     // just-finished Latin word for its Indian-script form in the background.
-    // (We intentionally do NOT preventDefault — the old code blocked every space
+    // (We intentionally do NOT preventDefault - the old code blocked every space
     //  until the network call returned, which felt like you had to press space
     //  twice. This now works the same way for Hindi, Tamil, Telugu & Malayalam.)
     if (e.key === ' ' && !e.ctrlKey && !e.metaKey && !e.altKey) {

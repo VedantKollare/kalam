@@ -24,7 +24,7 @@ export default function App() {
   const { user, init } = useAuthStore();
   const script = getActiveScript();
 
-  // Always open to Home on launch (pick a script there) — belt & suspenders
+  // Always open to Home on launch (pick a script there) - belt & suspenders
   useEffect(() => { setActiveScript(null); }, [setActiveScript]);
 
   // Initialise auth session once
@@ -36,7 +36,7 @@ export default function App() {
     else { stopSync(); }
   }, [user]);
 
-  // Splash — plays on every load, then reveals the Home screen. Click to skip.
+  // Splash - plays on every load, then reveals the Home screen. Click to skip.
   const [showSplash, setShowSplash] = useState(true);
   const dismissSplash = useCallback(() => setShowSplash(false), []);
 
@@ -49,7 +49,7 @@ export default function App() {
 
   // Keep the browser tab title in sync with the app.
   useEffect(() => {
-    document.title = 'Scripter — Indian Screenplay Writer';
+    document.title = 'Scripter | Indian Screenplay Writer';
   }, []);
 
   const handleExportPDF = useCallback(async () => {
@@ -64,7 +64,7 @@ export default function App() {
   return (
     <>
       {script ? (
-        /* In a script — full app chrome */
+        /* In a script - full app chrome */
         <>
           <TopBar />
           {!focusMode && <FormatToolbar />}
@@ -76,7 +76,7 @@ export default function App() {
           </div>
         </>
       ) : (
-        /* Home — no header, no drawer */
+        /* Home - no header, no drawer */
         <WelcomeScreen />
       )}
       {script && findOpen && <FindBar />}

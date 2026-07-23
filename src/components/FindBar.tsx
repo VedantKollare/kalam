@@ -34,7 +34,7 @@ function collectMatches(q: string): Range[] {
   return out;
 }
 
-// CSS Custom Highlight API — highlights matches WITHOUT moving the caret/focus.
+// CSS Custom Highlight API - highlights matches WITHOUT moving the caret/focus.
 const HL = typeof CSS !== 'undefined' && 'highlights' in CSS;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function clearHL() {
@@ -64,7 +64,7 @@ export default function FindBar() {
         (CSS as any).highlights.delete('find-current');
       }
     }
-    // scroll the current match into view — does NOT change focus
+    // scroll the current match into view - does NOT change focus
     (list[i]?.startContainer.parentElement as HTMLElement | null)
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };

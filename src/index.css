@@ -43,19 +43,19 @@
   --sheet-border: rgba(255,255,255,0.08);
   --sheet-shadow: 0 8px 20px rgba(60,64,67,0.12);
 
-  /* screenplay element colours (dark) — all derived from the theme's
+  /* screenplay element colours (dark) - all derived from the theme's
      two tones + warm neutrals, so the whole page stays in one colour family */
-  --c-scene:   var(--accent);     /* brightest tone — structural */
-  --c-char:    var(--accent-2);   /* second tone — people */
+  --c-scene:   var(--accent);     /* brightest tone - structural */
+  --c-char:    var(--accent-2);   /* second tone - people */
   --c-trans:   var(--accent);
   --c-interval:var(--accent);
   --c-song:    var(--accent-2);
-  --c-dia:     #f0ece6;           /* warm near-white — readability */
-  --c-action:  #c0b8aa;           /* warm taupe — secondary */
-  --c-paren:   #908070;           /* dim warm — quietest */
+  --c-dia:     #f0ece6;           /* warm near-white - readability */
+  --c-action:  #c0b8aa;           /* warm taupe - secondary */
+  --c-paren:   #908070;           /* dim warm - quietest */
 
   --font-ui:   'Inter', system-ui, sans-serif;
-  --font-wm:   'Bebas Neue', 'Inter', sans-serif;     /* wordmark — cinematic */
+  --font-wm:   'Bebas Neue', 'Inter', sans-serif;     /* wordmark - cinematic */
   --font-type: 'Courier Prime', 'Courier New', monospace;  /* typewriter */
 }
 
@@ -84,7 +84,7 @@
   --sheet-border: rgba(0,0,0,0.10);
   --sheet-shadow: 0 4px 16px rgba(120,95,40,.16);
 
-  /* elements (light) — headers in professional dark brown */
+  /* elements (light) - headers in professional dark brown */
   --c-scene:   #3b2a18;   /* dark brown scene headings */
   --c-action:  #34302a;
   --c-char:    #3b2a18;   /* character cues also dark brown */
@@ -97,12 +97,12 @@
 }
 
 /* ══════════════════════════════════════════════════════════════
-   THEMES (templates) — three curated identities. `data-template` is
+   THEMES (templates) - three curated identities. `data-template` is
    always present (App.tsx). Each defines a dark palette (default) and
    a light palette; they layer on top of the :root / [data-mode] base.
-   • classic   — pure grey / white / black    (default, minimal)
-   • cinematic — purple / lavender            (dramatic)
-   • studio    — cream / coffee               (warm, archival)
+   • classic   - pure grey / white / black    (default, minimal)
+   • cinematic - purple / lavender            (dramatic)
+   • studio    - cream / coffee               (warm, archival)
 ══════════════════════════════════════════════════════════════ */
 
 /* ---- CLASSIC : pure grey / white / black ---- */
@@ -253,7 +253,7 @@ body {
   color: var(--text-2); margin-top: 3px;
 }
 
-/* centre script title — absolutely centred so left brand and right controls don't affect it */
+/* centre script title - absolutely centred so left brand and right controls don't affect it */
 .header__title {
   position: absolute; left: 50%; transform: translateX(-50%);
   max-width: 36%;
@@ -460,7 +460,7 @@ select.s-input {
 .el-block { outline: none; min-height: 1.5em; }
 .el-block:empty::before { content: attr(data-ph); color: var(--text-3); pointer-events: none; }
 
-/* CLEAN scene heading — no highlight */
+/* CLEAN scene heading - no highlight */
 .el-scene_heading { color: var(--c-scene); font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; margin: 18px 0 7px; }
 .el-scene_heading:first-child { margin-top: 0; }
 .el-action { color: var(--c-action); margin: 3px 0; }
@@ -561,7 +561,7 @@ select.s-input {
 @keyframes splashTag { to { opacity: 1; transform: translateY(0); } }
 
 /* ═══════════════════════════════════════════════════════════════
-   PREMIUM PASS — atmosphere, glass, glow, motion
+   PREMIUM PASS - atmosphere, glass, glow, motion
 ═══════════════════════════════════════════════════════════════ */
 :root {
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -581,7 +581,7 @@ select.s-input {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(75% 65% at 50% 42%, transparent 48%, rgba(0,0,0,.55) 100%);
 }
-.welcome::after { /* fine film grain — very subtle */
+.welcome::after { /* fine film grain - very subtle */
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background-image: var(--grain); background-size: 240px; opacity: .025;
 }
@@ -665,7 +665,7 @@ select.s-input {
 .ham, .modeswitch button, .zoom button, .drawer__tab, .rpanel__row, .d-theme { transition: all .16s cubic-bezier(.2,.8,.2,1); }
 
 /* ═══════════════════════════════════════════════════════════════
-   REFINED CHROME — restrained depth on panels, lists, inputs
+   REFINED CHROME - restrained depth on panels, lists, inputs
 ═══════════════════════════════════════════════════════════════ */
 
 /* Panels: faint inner top highlight for a milled edge */
@@ -707,14 +707,14 @@ select.s-input {
 /* Drawer tabs: lift the active underline a touch */
 .drawer__tab.active { box-shadow: inset 0 -2px 0 var(--accent); border-bottom-color: transparent; }
 
-/* Refined scrollbar — accent on hover */
+/* Refined scrollbar - accent on hover */
 ::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--accent) 45%, rgba(128,128,128,.4)); }
 
 /* Export/primary buttons in the drawer get the same lift as home */
 .drawer__foot .btn-accent { box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--accent) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.3); }
 
 /* ═══════════════════════════════════════════════════════════════
-   PRO EDITOR — numbered element bar, Properties panel, scene numbers
+   PRO EDITOR - numbered element bar, Properties panel, scene numbers
 ═══════════════════════════════════════════════════════════════ */
 
 /* Top numbered element bar */
@@ -770,7 +770,7 @@ select.s-input {
   color: var(--text-3); user-select: none; pointer-events: none;
 }
 
-/* Gentle typewriter focus — the line you're writing stays bright */
+/* Gentle typewriter focus - the line you're writing stays bright */
 .scriptbody:focus-within .el-block { opacity: .55; transition: opacity .22s ease; }
 .scriptbody:focus-within .el-block:focus { opacity: 1; }
 
@@ -966,7 +966,7 @@ select.ftoolbar__font {
 ::highlight(find-current) { background-color: #f5d060; color: #0a0a0a; }
 
 /* ═══════════════════════════════════════════════════════════════
-   PRINT — output a clean, industry-standard black-on-white screenplay
+   PRINT - output a clean, industry-standard black-on-white screenplay
 ═══════════════════════════════════════════════════════════════ */
 @page { size: A4; margin: 1in 1in 1in 1.5in; }
 

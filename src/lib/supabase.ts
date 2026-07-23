@@ -7,7 +7,7 @@ const anon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 export const cloudEnabled = Boolean(url && anon);
 
 /**
- * The Supabase client. Null until configured — the app then runs fully
+ * The Supabase client. Null until configured - the app then runs fully
  * offline (localStorage), exactly as it does today.
  */
 export const supabase: SupabaseClient | null = cloudEnabled

@@ -5,7 +5,7 @@ const esc = (s: string) =>
 
 /**
  * Download the screenplay as a Word .doc file.
- * We emit Word-flavoured HTML (which Word opens natively) — no heavy deps.
+ * We emit Word-flavoured HTML (which Word opens natively) - no heavy deps.
  */
 export function downloadDoc(script: Script): void {
   const body = script.blocks.map(b => {

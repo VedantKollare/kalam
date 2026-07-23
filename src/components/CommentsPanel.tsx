@@ -36,7 +36,7 @@ export default function CommentsPanel() {
       {list.length === 0 ? (
         <div className="cpanel__empty">
           <div className="cpanel__empty-ic">💬</div>
-          Select any text in your script and a <b>Comment</b> button appears — leave notes for yourself or collaborators.
+          Select any text in your script and a <b>Comment</b> button appears. Leave notes for yourself or collaborators.
         </div>
       ) : (
         <div className="cpanel__list">

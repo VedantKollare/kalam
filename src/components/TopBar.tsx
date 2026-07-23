@@ -45,13 +45,13 @@ export default function TopBar() {
       <button
         className={`ham ${drawerOpen ? 'active' : ''}`}
         onClick={toggleDrawer}
-        title="Menu — Scenes, Cast, Locations, Themes"
+        title="Menu: Scenes, Cast, Locations, Themes"
         aria-label="Toggle menu"
       >
         <span /><span /><span />
       </button>
 
-      {/* Brand — click to go home */}
+      {/* Brand - click to go home */}
       <div
         className="brand"
         style={{ cursor: 'pointer' }}
@@ -65,7 +65,7 @@ export default function TopBar() {
         </div>
       </div>
 
-      {/* Centre — typewriter script title (no emoji) */}
+      {/* Centre - typewriter script title (no emoji) */}
       <div className="header__title">
         {script
           ? (script.title || 'Untitled Script')
@@ -108,7 +108,7 @@ export default function TopBar() {
           <button
             className={`focusbtn ${focusMode ? 'on' : ''}`}
             onClick={toggleFocusMode}
-            title={focusMode ? 'Exit focus mode (Esc)' : 'Focus mode — just you and the page'}
+            title={focusMode ? 'Exit focus mode (Esc)' : 'Focus mode: just you and the page'}
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/>
@@ -125,12 +125,12 @@ export default function TopBar() {
           </div>
         )}
 
-        {/* Theme picker — choose your look (moved here from the home page) */}
+        {/* Theme picker - choose your look (moved here from the home page) */}
         <select
           className="themepick"
           value={template}
           onChange={(e) => setTemplate(e.target.value as TemplateId)}
-          title="Theme — choose your look"
+          title="Theme: choose your look"
           aria-label="Theme"
           style={{
             height: 30, borderRadius: 8, padding: '0 8px', fontSize: 12, cursor: 'pointer',
