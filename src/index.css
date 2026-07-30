@@ -968,11 +968,13 @@ select.ftoolbar__font {
 /* ═══════════════════════════════════════════════════════════════
    PRINT - output a clean, industry-standard black-on-white screenplay
 ═══════════════════════════════════════════════════════════════ */
-@page { size: A4; margin: 1in 1in 1in 1.5in; }
+/* margin: 0 removes the browser's own header/footer (date, title, URL, page
+   number). The screenplay's page margins are applied as padding on .sheet below. */
+@page { size: A4; margin: 0; }
 
 @media print {
-  /* Hide all app chrome */
-  .header, .etabs, .drawer, .props, .splash, .focusbtn { display: none !important; }
+  /* Hide all app chrome so only the script prints */
+  .header, .ftoolbar, .etabs, .drawer, .cpanel, .findbar, .props, .splash, .focusbtn { display: none !important; }
 
   html, body { background: #fff !important; height: auto !important; overflow: visible !important; }
   #root { height: auto !important; display: block !important; }
@@ -987,7 +989,8 @@ select.ftoolbar__font {
   .sheet {
     box-shadow: none !important; border: none !important; border-radius: 0 !important;
     background: #fff !important; width: 100% !important; max-width: none !important;
-    min-height: 0 !important; margin: 0 !important; padding: 0 !important;
+    min-height: 0 !important; margin: 0 !important;
+    padding: 1in 1in 1in 1.5in !important;   /* screenplay margins (browser @page margin is 0) */
     background-image: none !important;
   }
   .sheet__title { border-color: #000 !important; }
