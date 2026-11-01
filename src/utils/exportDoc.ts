@@ -9,18 +9,19 @@ const esc = (s: string) =>
  */
 export function downloadDoc(script: Script): void {
   const body = script.blocks.map(b => {
-    const c = esc(b.content || '') || '&nbsp;';
+    // Block content is already HTML (inline B/I/U from the editor) - keep it.
+    const c = b.content || '&nbsp;';
     switch (b.type) {
       case 'scene_heading':
         return `<p style="font-weight:bold;text-transform:uppercase;margin:14pt 0 4pt 0;">${c}</p>`;
       case 'action':
         return `<p style="margin:4pt 0;">${c}</p>`;
       case 'character':
-        return `<p style="margin:10pt 0 0 0;text-align:center;font-weight:bold;text-transform:uppercase;">${c}</p>`;
+        return `<p style="margin:10pt 0 0 2.2in;font-weight:bold;text-transform:uppercase;">${c}</p>`;
       case 'parenthetical':
-        return `<p style="margin:0;text-align:center;font-style:italic;">${c}</p>`;
+        return `<p style="margin:0 1.9in 0 1.6in;font-style:italic;">${c}</p>`;
       case 'dialogue':
-        return `<p style="margin:0 1.4in 4pt 1.4in;">${c}</p>`;
+        return `<p style="margin:0 1.5in 4pt 1in;">${c}</p>`;
       case 'transition':
         return `<p style="margin:8pt 0;text-align:right;font-weight:bold;text-transform:uppercase;">${c}</p>`;
       case 'intermission':

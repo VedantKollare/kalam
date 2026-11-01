@@ -35,6 +35,9 @@ export const scriptSchema = z.object({
   blocks: z.array(blockSchema).min(1),
   font: z.string().optional(),
   fontSize: z.number().optional(),
+  contact: z.string().optional(),
+  draftDate: z.string().optional(),
+  pageSize: z.enum(['A4', 'Letter']).optional(),
   createdAt: z.number(),
   updatedAt: z.number(),
 });

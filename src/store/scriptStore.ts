@@ -14,7 +14,7 @@ interface ScriptStore {
   createScript: () => void;
   deleteScript: (id: string) => void;
   setActiveScript: (id: string | null) => void;
-  updateScriptMeta: (id: string, meta: Partial<Pick<Script, 'title' | 'author' | 'language' | 'font' | 'fontSize'>>) => void;
+  updateScriptMeta: (id: string, meta: Partial<Pick<Script, 'title' | 'author' | 'language' | 'font' | 'fontSize' | 'contact' | 'draftDate' | 'pageSize'>>) => void;
 
   // Block management (operate on the active script)
   addBlock: (afterId: string, type: ElementType) => string;

@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useDeferredValue, useState } from 'react';
 import { useScriptStore } from '../store/scriptStore';
 import { useAppStore } from '../store/appStore';
 import { type ScriptLanguage } from '../types/screenplay';
 import { groupLocations } from '../utils/parseScenes';
 import { downloadDoc } from '../utils/exportDoc';
+import { downloadFountain, downloadFDX } from '../utils/exportFormats';
 import { plain } from '../utils/text';
+import { paginateScript } from '../utils/layout';
+import { formatEighths } from '../domain/pagination';
 
 interface Props { onExportPDF: () => void }
 
@@ -39,7 +42,11 @@ export default function Drawer({ onExportPDF }: Props) {
   )];
   const locs = groupLocations(script);
   const words = script?.blocks.reduce((n,b) => n + plain(b.content).split(/\s+/).filter(Boolean).length, 0) ?? 0;
-  const pages = Math.max(1, Math.round((script?.blocks.reduce((n,b) => n + plain(b.content).length, 0) ?? 0) / 280));
+  // Real page count from the pagination engine (1 page ~ 1 minute of screen time)
+  const deferred = useDeferredValue(script);
+  const layout = deferred ? paginateScript(deferred) : null;
+  const pages = layout?.pageCount ?? 0;
+  const sceneMeta = Object.fromEntries((layout?.scenes ?? []).map(m => [m.blockId, m]));
 
   const jumpToScene = (id: string) => {
     document.getElementById(`block-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -72,6 +79,20 @@ export default function Drawer({ onExportPDF }: Props) {
                   onChange={e => updateScriptMeta(script.id, { language: e.target.value as ScriptLanguage })}>
                   {LANGS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
                 </select>
+                <details className="d-titlepage">
+                  <summary>Title page &amp; paper</summary>
+                  <textarea className="s-input" rows={3} placeholder={'Contact (bottom left)\nname · phone · email'}
+                    value={script.contact ?? ''}
+                    onChange={e => updateScriptMeta(script.id, { contact: e.target.value })} />
+                  <input className="s-input" placeholder="Draft / date, e.g. First Draft, 1 Nov 2026"
+                    value={script.draftDate ?? ''}
+                    onChange={e => updateScriptMeta(script.id, { draftDate: e.target.value })} />
+                  <select className="s-input" value={script.pageSize ?? 'A4'} title="Paper size"
+                    onChange={e => updateScriptMeta(script.id, { pageSize: e.target.value as 'A4' | 'Letter' })}>
+                    <option value="A4">A4 paper</option>
+                    <option value="Letter">US Letter paper</option>
+                  </select>
+                </details>
               </div>
             )}
             <div className="drawer__head">Scenes <span>{scenes.length}</span></div>
@@ -81,6 +102,11 @@ export default function Drawer({ onExportPDF }: Props) {
                 <div key={s.id} className="d-scene" onClick={() => jumpToScene(s.id)}>
                   <span className="d-scene__n">{i + 1}</span>
                   <span className="d-scene__h">{plain(s.content) || 'Untitled scene'}</span>
+                  {sceneMeta[s.id] && (
+                    <span className="d-scene__len" title={`Starts on page ${sceneMeta[s.id].startPage} · length in eighths of a page`}>
+                      p{sceneMeta[s.id].startPage} · {formatEighths(sceneMeta[s.id].eighths)}
+                    </span>
+                  )}
                 </div>
               ))}
           </>
@@ -137,8 +163,8 @@ export default function Drawer({ onExportPDF }: Props) {
           <div className="stat-grid">
             <div className="stat"><div className="stat__v">{scenes.length}</div><div className="stat__l">Scenes</div></div>
             <div className="stat"><div className="stat__v">{words}</div><div className="stat__l">Words</div></div>
-            <div className="stat"><div className="stat__v">~{pages}</div><div className="stat__l">Pages</div></div>
-            <div className="stat stat--wide"><div className="stat__l">Screen time</div><div className="stat__v">~{pages}m</div></div>
+            <div className="stat"><div className="stat__v">{pages}</div><div className="stat__l">Pages</div></div>
+            <div className="stat stat--wide"><div className="stat__l">Screen time (est.)</div><div className="stat__v">~{pages} min</div></div>
           </div>
 
           <div style={{ display:'flex', gap:8, position:'relative' }}>
@@ -158,6 +184,12 @@ export default function Drawer({ onExportPDF }: Props) {
                 </button>
                 <button onClick={() => { onExportPDF(); setDlOpen(false); }}>
                   PDF document <span className="ext">.pdf</span>
+                </button>
+                <button onClick={() => { downloadFDX(script); setDlOpen(false); }} title="Opens in Final Draft">
+                  Final Draft <span className="ext">.fdx</span>
+                </button>
+                <button onClick={() => { downloadFountain(script); setDlOpen(false); }} title="Plain-text screenplay format used by Highland, WriterDuet, Slugline and others">
+                  Fountain <span className="ext">.fountain</span>
                 </button>
               </div>
             )}

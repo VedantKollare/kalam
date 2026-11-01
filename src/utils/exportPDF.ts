@@ -1,159 +1,93 @@
 import { type Script } from '../types/screenplay';
-import { plain } from './text';
+import { PAGE_SIZES, TOP_MARGIN_IN, LINE_HEIGHT_IN, CHARS_PER_INCH, type PageLine } from '../domain/pagination';
+import { paginateScript } from './layout';
 
+const PT = 72;   // points per inch
+
+/** jsPDF's built-in Courier has no Indian-script glyphs or text shaping. */
+export function needsBrowserPDF(script: Script): boolean {
+  return script.language !== 'english' && script.language !== 'hinglish'
+    || script.blocks.some(b => /[ऀ-෿]/.test(b.content));
+}
+
+/**
+ * Export the script as a PDF laid out by the pagination engine, so the file
+ * matches the page view and print exactly. Indian-script scripts go through
+ * the browser's print dialog ("Save as PDF"), which shapes those fonts.
+ */
 export async function exportToPDF(script: Script): Promise<void> {
-  // Dynamic import to keep bundle lean
+  if (needsBrowserPDF(script)) {
+    window.print();
+    return;
+  }
+
   const { default: jsPDF } = await import('jspdf');
-
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit: 'pt',
-    format: 'letter',
-  });
-
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-
-  const marginLeft = 96;   // ~1 inch
-  const marginRight = 72;  // ~0.75 inch
-  const marginTop = 72;
-  const marginBottom = 72;
-  const contentWidth = pageWidth - marginLeft - marginRight;
-
-  let y = marginTop;
-  const lineHeight = 14;
-  const fontSize = 11;
-
-  doc.setFont('Courier', 'normal');
-  doc.setFontSize(fontSize);
-
-  function addLine(text: string, x = marginLeft, weight: 'normal' | 'bold' = 'normal') {
-    doc.setFont('Courier', weight);
-    // Check if we need a new page
-    if (y + lineHeight > pageHeight - marginBottom) {
-      doc.addPage();
-      y = marginTop;
-    }
-    doc.text(text, x, y);
-    y += lineHeight;
-  }
-
-  function addBlankLine() {
-    y += lineHeight * 0.5;
-  }
+  const size = script.pageSize ?? 'A4';
+  const { width, height } = PAGE_SIZES[size];
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: size === 'A4' ? 'a4' : 'letter' });
+  const W = width * PT;
+  const center = W / 2;
 
   // Title page
   doc.setFont('Courier', 'bold');
-  doc.setFontSize(16);
-  const titleY = pageHeight / 3;
-  doc.text(script.title.toUpperCase(), pageWidth / 2, titleY, { align: 'center' });
-
+  doc.setFontSize(12);
+  const title = (script.title || 'Untitled Script').toUpperCase();
+  const titleY = 3.3 * PT + 12;
+  doc.text(title, center, titleY, { align: 'center' });
+  const tw = doc.getTextWidth(title);
+  doc.setLineWidth(0.6);
+  doc.line(center - tw / 2, titleY + 3, center + tw / 2, titleY + 3);
+  doc.setFont('Courier', 'normal');
   if (script.author) {
-    doc.setFont('Courier', 'normal');
-    doc.setFontSize(fontSize);
-    doc.text(`Written by`, pageWidth / 2, titleY + 28, { align: 'center' });
-    doc.text(script.author, pageWidth / 2, titleY + 44, { align: 'center' });
+    doc.text('Written by', center, titleY + 0.5 * PT, { align: 'center' });
+    doc.text(script.author, center, titleY + 0.67 * PT, { align: 'center' });
+  }
+  const bottom = height * PT - PT;
+  if (script.contact) {
+    const lines = script.contact.split(/\r?\n/);
+    lines.forEach((l, i) => doc.text(l, 1.5 * PT, bottom - (lines.length - 1 - i) * 12));
+  }
+  if (script.draftDate) {
+    const lines = script.draftDate.split(/\r?\n/);
+    lines.forEach((l, i) => doc.text(l, W - PT, bottom - (lines.length - 1 - i) * 12, { align: 'right' }));
   }
 
-  // Script content page
-  doc.addPage();
-  y = marginTop;
-  doc.setFontSize(fontSize);
-
-  for (const block of script.blocks) {
-    const content = plain(block.content).trim();
-    if (!content) {
-      addBlankLine();
-      continue;
-    }
-
-    switch (block.type) {
-      case 'scene_heading': {
-        addBlankLine();
-        const lines = doc.splitTextToSize(content.toUpperCase(), contentWidth);
-        for (const line of lines) addLine(line, marginLeft, 'bold');
-        break;
-      }
-
-      case 'action': {
-        const lines = doc.splitTextToSize(content, contentWidth);
-        for (const line of lines) addLine(line, marginLeft, 'normal');
-        addBlankLine();
-        break;
-      }
-
-      case 'character': {
-        addBlankLine();
-        addLine(content.toUpperCase(), marginLeft + contentWidth * 0.38, 'bold');
-        break;
-      }
-
-      case 'parenthetical': {
-        const pText = content.startsWith('(') ? content : `(${content})`;
-        addLine(pText, marginLeft + contentWidth * 0.28, 'normal');
-        break;
-      }
-
-      case 'dialogue': {
-        const dialogueWidth = contentWidth * 0.55;
-        const lines = doc.splitTextToSize(content, dialogueWidth);
-        for (const line of lines) addLine(line, marginLeft + contentWidth * 0.22, 'normal');
-        addBlankLine();
-        break;
-      }
-
-      case 'transition': {
-        addBlankLine();
-        const tText = content.toUpperCase();
-        addLine(tText, pageWidth - marginRight - doc.getTextWidth(tText), 'bold');
-        addBlankLine();
-        break;
-      }
-
-      case 'intermission': {
-        addBlankLine();
-        addBlankLine();
-        const iText = 'INTERVAL';
-        // Draw lines
-        if (y + lineHeight * 3 > pageHeight - marginBottom) { doc.addPage(); y = marginTop; }
-        doc.setLineWidth(0.5);
-        doc.line(marginLeft, y, pageWidth - marginRight, y);
-        y += lineHeight * 0.8;
-        doc.setFont('Courier', 'bold');
-        doc.setFontSize(14);
-        doc.text(iText, pageWidth / 2, y, { align: 'center', charSpace: 8 });
-        y += lineHeight;
-        doc.setFontSize(fontSize);
-        doc.line(marginLeft, y, pageWidth - marginRight, y);
-        y += lineHeight;
-        addBlankLine();
-        break;
-      }
-
-      case 'song': {
-        addBlankLine();
-        const songWidth = contentWidth * 0.7;
-        const lines = doc.splitTextToSize(content, songWidth);
-        doc.setFont('Courier', 'italic' as any);
-        for (const line of lines) {
-          if (y + lineHeight > pageHeight - marginBottom) { doc.addPage(); y = marginTop; }
-          doc.text(line, marginLeft + contentWidth * 0.15, y);
-          y += lineHeight;
-        }
-        addBlankLine();
-        break;
-      }
-    }
-  }
-
-  // Page numbers
-  const totalPages = doc.getNumberOfPages();
-  for (let i = 2; i <= totalPages; i++) {
-    doc.setPage(i);
+  const { pages } = paginateScript(script);
+  for (const page of pages) {
+    doc.addPage();
     doc.setFont('Courier', 'normal');
-    doc.setFontSize(10);
-    doc.text(`${i - 1}.`, pageWidth - marginRight, marginTop - 20, { align: 'right' });
+    doc.setFontSize(12);
+    if (page.number > 1) doc.text(`${page.number}.`, W - PT, 0.5 * PT + 10, { align: 'right' });
+    for (const line of page.lines) drawLine(doc, line, W);
   }
 
   doc.save(`${script.title.replace(/\s+/g, '_') || 'script'}.pdf`);
+}
+
+type Doc = InstanceType<typeof import('jspdf').default>;
+
+function drawLine(doc: Doc, l: PageLine, W: number) {
+  // Baseline sits ~80% down the 1/6" line box
+  const y = (TOP_MARGIN_IN + l.row * LINE_HEIGHT_IN) * PT + 9.5;
+  const bold = ['scene_heading', 'character', 'transition', 'contd', 'intermission'].includes(l.kind);
+  const italic = l.kind === 'parenthetical' || l.kind === 'song';
+  doc.setFont('Courier', bold && italic ? 'bolditalic' : bold ? 'bold' : italic ? 'italic' : 'normal');
+
+  if (l.sceneNumber != null) {
+    doc.setFont('Courier', 'bold');
+    doc.text(String(l.sceneNumber), (l.left - 0.75) * PT, y);
+    doc.text(String(l.sceneNumber), W - PT, y, { align: 'right' });
+  }
+
+  if (l.align === 'right') {
+    doc.text(l.text, (l.left + 6) * PT, y, { align: 'right' });
+  } else if (l.align === 'center') {
+    const cx = (l.left + 3) * PT;
+    doc.text(l.text, cx, y, { align: 'center', charSpace: 4 });
+    doc.setLineWidth(0.5);
+    doc.line(l.left * PT, y - 11, (l.left + 6) * PT, y - 11);
+    doc.line(l.left * PT, y + 4, (l.left + 6) * PT, y + 4);
+  } else {
+    doc.text(l.text, l.left * PT, y, { maxWidth: (l.width / CHARS_PER_INCH) * PT + 4 });
+  }
 }

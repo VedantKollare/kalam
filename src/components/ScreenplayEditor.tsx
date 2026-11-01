@@ -1,11 +1,12 @@
 import React, {
-  useRef, useCallback, useEffect, useState, memo,
+  Fragment, useRef, useCallback, useEffect, useState, memo, useDeferredValue,
   type KeyboardEvent, type FormEvent,
 } from 'react';
 import { useScriptStore } from '../store/scriptStore';
 import { useAppStore } from '../store/appStore';
 import { useCommentStore } from '../store/commentStore';
 import { isTranslitLang, translitWord } from '../lib/translit';
+import { paginateScript } from '../utils/layout';
 import {
   type ElementType, type ScreenplayBlock,
   NEXT_ELEMENT, LANGUAGE_FONTS, DEFAULT_FONT, DEFAULT_SIZE,
@@ -102,6 +103,9 @@ export default function ScreenplayEditor() {
     r.selectNodeContents(el); r.collapse(false);
     s?.removeAllRanges(); s?.addRange(r);
   };
+
+  // Layout lags typing slightly so long scripts stay responsive.
+  const deferredScript = useDeferredValue(script);
 
   useEffect(() => {
     if (!focusTarget.current) return;
@@ -219,6 +223,16 @@ export default function ScreenplayEditor() {
   const sceneNums: Record<string, number> = {};
   for (const b of script.blocks) if (b.type === 'scene_heading') sceneNums[b.id] = ++n;
 
+  // Where each printed page starts (same engine as print and PDF export)
+  const blockPage = deferredScript ? paginateScript(deferredScript).blockPage : {};
+  const pageBreaks = new Set<string>();
+  let lastPage = 1;
+  for (const b of script.blocks) {
+    const page = blockPage[b.id];
+    if (page != null && page > lastPage) pageBreaks.add(b.id);
+    if (page != null) lastPage = page;
+  }
+
   return (
     <div className="canvas" onMouseUp={onSelect} onKeyUp={onSelect}>
       <div className="zoom-wrap" style={{ zoom: zoom / 100 }}>
@@ -230,8 +244,13 @@ export default function ScreenplayEditor() {
 
           <div className="scriptbody" style={{ fontFamily, fontSize }}>
             {script.blocks.map(b => (
-              <div key={b.id} className="blockrow">
-                {sceneNums[b.id] != null && <span className="scene-num">{sceneNums[b.id]}</span>}
+              <Fragment key={b.id}>
+              {pageBreaks.has(b.id) && <div className="pbreak" aria-hidden>Page {blockPage[b.id]}</div>}
+              <div className="blockrow">
+                {sceneNums[b.id] != null && <>
+                  <span className="scene-num scene-num--l">{sceneNums[b.id]}</span>
+                  <span className="scene-num">{sceneNums[b.id]}</span>
+                </>}
                 <Block
                   block={b}
                   onKeyDown={handleKeyDown}
@@ -240,6 +259,7 @@ export default function ScreenplayEditor() {
                   register={register}
                 />
               </div>
+              </Fragment>
             ))}
           </div>
         </div>

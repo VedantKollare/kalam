@@ -9,7 +9,7 @@
 import type { Script, ScreenplayBlock, ElementType, Align } from '../domain/screenplay';
 import { generateId } from '../lib/id';
 
-type MetaPatch = Partial<Pick<Script, 'title' | 'author' | 'language' | 'font' | 'fontSize'>>;
+type MetaPatch = Partial<Pick<Script, 'title' | 'author' | 'language' | 'font' | 'fontSize' | 'contact' | 'draftDate' | 'pageSize'>>;
 
 const touch = (s: Script): Script => ({ ...s, updatedAt: Date.now() });
 

@@ -21,7 +21,7 @@ function InfinityMark() {
 export default function TopBar() {
   const { getActiveScript, setActiveScript } = useScriptStore();
   const { mode, toggleMode, template, setTemplate, drawerOpen, toggleDrawer, zoom, zoomIn, zoomOut, resetZoom,
-          focusMode, toggleFocusMode, setFocusMode, setShareOpen, setFindOpen } = useAppStore();
+          focusMode, toggleFocusMode, setFocusMode, setShareOpen, setFindOpen, pageView, setPageView } = useAppStore();
   const { user } = useAuthStore();
   const script = getActiveScript();
 
@@ -91,6 +91,14 @@ export default function TopBar() {
             </svg>
             Share
           </button>
+        )}
+
+        {/* Draft (editable) / Page view (exact printed pages) */}
+        {script && (
+          <div className="viewswitch" role="group" aria-label="View">
+            <button className={!pageView ? 'on' : ''} onClick={() => setPageView(false)} title="Write and edit">Draft</button>
+            <button className={pageView ? 'on' : ''} onClick={() => setPageView(true)} title="See the exact printed pages">Pages</button>
+          </div>
         )}
 
         {/* Print */}

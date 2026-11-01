@@ -32,6 +32,9 @@ export interface Script {
   blocks: ScreenplayBlock[];
   font?: string;       // page font family (Word/Docs-style choice)
   fontSize?: number;   // page font size in pt
+  contact?: string;    // title page: writer's contact details (bottom left)
+  draftDate?: string;  // title page: draft label / date (bottom right)
+  pageSize?: 'A4' | 'Letter';
   createdAt: number;
   updatedAt: number;
 }

@@ -14,6 +14,7 @@ interface AppStore {
   focusMode: boolean;
   shareOpen: boolean;
   findOpen: boolean;
+  pageView: boolean;
   focusedBlockId: string | null;
 
   toggleMode: () => void;
@@ -25,6 +26,7 @@ interface AppStore {
   setFocusMode: (on: boolean) => void;
   setShareOpen: (on: boolean) => void;
   setFindOpen: (on: boolean) => void;
+  setPageView: (on: boolean) => void;
   setFocusedBlock: (id: string | null) => void;
 
   setZoom: (z: number) => void;
@@ -43,6 +45,7 @@ export const useAppStore = create<AppStore>()(
       focusMode: false,
       shareOpen: false,
       findOpen: false,
+      pageView: false,
       focusedBlockId: null,
 
       toggleMode: () => set((s) => ({ mode: s.mode === 'dark' ? 'light' : 'dark' })),
@@ -54,6 +57,7 @@ export const useAppStore = create<AppStore>()(
       setFocusMode: (focusMode) => set({ focusMode }),
       setShareOpen: (shareOpen) => set({ shareOpen }),
       setFindOpen: (findOpen) => set({ findOpen }),
+      setPageView: (pageView) => set({ pageView }),
       setFocusedBlock: (focusedBlockId) => set({ focusedBlockId }),
 
       setZoom: (zoom) => set({ zoom: Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom)) }),

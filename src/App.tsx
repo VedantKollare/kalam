@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { useScriptStore } from './store/scriptStore';
 import { useAppStore } from './store/appStore';
 import { useAuthStore } from './store/authStore';
@@ -14,13 +15,14 @@ import ShareModal from './components/ShareModal';
 import SharedView from './components/SharedView';
 import FindBar from './components/FindBar';
 import WelcomeScreen from './components/WelcomeScreen';
+import PageView from './components/PageView';
 import { exportToPDF } from './utils/exportPDF';
 
 const SHARED_ID = new URLSearchParams(window.location.search).get('s');
 
 export default function App() {
   const { getActiveScript, setActiveScript } = useScriptStore();
-  const { mode, template, focusMode, shareOpen, setShareOpen, findOpen } = useAppStore();
+  const { mode, template, focusMode, shareOpen, setShareOpen, findOpen, pageView } = useAppStore();
   const { user, init } = useAuthStore();
   const script = getActiveScript();
 
@@ -52,6 +54,20 @@ export default function App() {
     document.title = 'Scripter | Indian Screenplay Writer';
   }, []);
 
+  // Print (button or Ctrl+P) renders the paginated pages just in time, so the
+  // hidden print copy costs nothing while you type.
+  const [printing, setPrinting] = useState(false);
+  useEffect(() => {
+    const before = () => flushSync(() => setPrinting(true));
+    const after = () => setPrinting(false);
+    window.addEventListener('beforeprint', before);
+    window.addEventListener('afterprint', after);
+    return () => {
+      window.removeEventListener('beforeprint', before);
+      window.removeEventListener('afterprint', after);
+    };
+  }, []);
+
   const handleExportPDF = useCallback(async () => {
     if (!script) return;
     try { await exportToPDF(script); }
@@ -67,11 +83,13 @@ export default function App() {
         /* In a script - full app chrome */
         <>
           <TopBar />
-          {!focusMode && <FormatToolbar />}
-          {!focusMode && <ElementTabBar />}
+          {!focusMode && !pageView && <FormatToolbar />}
+          {!focusMode && !pageView && <ElementTabBar />}
           <div className="body-row">
             {!focusMode && <Drawer onExportPDF={handleExportPDF} />}
-            <ScreenplayEditor />
+            {pageView
+              ? <div className="canvas"><PageView script={script} /></div>
+              : <ScreenplayEditor />}
             {!focusMode && <CommentsPanel />}
           </div>
         </>
@@ -79,7 +97,8 @@ export default function App() {
         /* Home - no header, no drawer */
         <WelcomeScreen />
       )}
-      {script && findOpen && <FindBar />}
+      {script && findOpen && !pageView && <FindBar />}
+      {script && printing && <div className="print-root"><PageView script={script} variant="print" /></div>}
       {shareOpen && <ShareModal onClose={() => setShareOpen(false)} />}
       {showSplash && <Splash onDone={dismissSplash} />}
     </>
