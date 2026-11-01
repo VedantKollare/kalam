@@ -44,38 +44,28 @@ backend, local AI stack, tests, DI, logging) WITHOUT breaking existing features.
 
 **Deferred Phase-1 slices** (do after the AI slice below): repository port + adapter (persistence seam for the REST backend) → decompose the 261-line `ScreenplayEditor` (Block + editor shell + a transliteration/caret hook) → extract `useAutosave` + `useKeyboardShortcuts` → loading/a11y polish + more tests.
 
-## ▶ CHOSEN NEXT TASK (2026-06-29): AI "Rewrite suggestion" — vertical slice
-Prove the whole local-AI architecture on ONE thin feature before scaling out.
-Keep it LEAN: this slice needs only FastAPI + Ollama (httpx). CrewAI / ChromaDB /
-LlamaIndex come in later phases — do NOT pull them in yet.
+## AI: notes only, never rewrites (decided 2026-11-01)
+See `docs/decisions/0001-ai-gives-notes-never-rewrites.md`. The old "Rewrite with
+AI" slice is DROPPED. Do not add any feature that writes text into the script.
+- Backend `POST /api/ai/notes` (FastAPI → Ollama `chat_json`, `format: json`) returns
+  `{notes:[{block_id, category, note}]}`; prompt in `backend/app/prompts/notes.py`.
+- Frontend `src/lib/api/client.ts` + `src/services/aiNotes.ts` (zod-validated);
+  notes land in the Notes panel (`CommentsPanel`) as `source: 'ai'` comments.
+- Run locally: `ollama pull qwen2.5:7b`, then `cd backend && uvicorn app.main:app --port 8000`.
 
-Flow: in the editor, focus a block → "Rewrite with AI" → streamed suggestion →
-Accept (replace block) or Discard. Must degrade gracefully if the backend/Ollama
-is down (friendly "start the local AI server" message; app stays fully usable offline).
+## Professional layout (2026-11-01)
+- `src/domain/pagination.ts` is the single page engine (12pt Courier, 10 cpi, 6 lpi,
+  A4 58 / Letter 54 body lines). Drives: page view (`PageView`), print (rendered just
+  in time on `beforeprint`), jsPDF export, editor page-break markers, drawer page
+  count, scene length in eighths. Change layout rules THERE, not in CSS.
+- Indian-script PDFs go through the browser print dialog (jsPDF can't shape them).
+- `src/domain/checks.ts` = offline script checks → `source: 'check'` notes.
+- Export: PDF, Word, Final Draft `.fdx`, Fountain (`src/utils/exportFormats.ts`).
 
-Backend (new `backend/` sibling folder, FastAPI):
-- `app/main.py` (CORS for localhost:5173/5174, `/health`, include router)
-- `app/core/config.py` (pydantic-settings: `OLLAMA_BASE_URL=http://localhost:11434`, `MODEL=qwen2.5:7b`)
-- `app/core/logging.py` (structured logs, mirror the frontend logger shape)
-- `app/models/ai.py` (Pydantic `RewriteRequest{text, element_type, instruction?}` / response)
-- `app/ai/ollama_client.py` (httpx streaming call to Ollama `/api/chat`, `stream=True`)
-- `app/prompts/rewrite.py` (prompt template kept SEPARATE from code — brief requirement)
-- `app/services/rewrite_service.py` (build prompt from request, yield tokens)
-- `app/api/routes/ai.py` (`POST /api/ai/rewrite` → `StreamingResponse`; service injected via `Depends`)
-- `app/tests/test_rewrite.py` (pytest + mocked Ollama)
-- `requirements.txt`: fastapi, uvicorn[standard], httpx, pydantic-settings, pytest
-- Run: `uvicorn app.main:app --reload --port 8000`
-
-Frontend:
-- `src/lib/api/client.ts` (fetch wrapper, `VITE_API_URL` default `http://localhost:8000`, streaming reader helper)
-- `src/services/aiService.ts` (`streamRewrite(text, elementType, {signal, onToken})`)
-- `src/hooks/useRewrite.ts` (loading / streaming / error state)
-- Minimal editor UI: a "Rewrite with AI" control on the focused block + streamed preview + Accept/Discard
-- Tests for aiService + useRewrite (mock fetch/stream)
-
-Prerequisites the USER must install first (see handoff):
-- Ollama installed + `ollama pull qwen2.5:7b` (model running on :11434)
-- Python 3.11+ for the FastAPI backend
+## Roadmap (next)
+Breakdown tab (props/costumes per scene, cast x scene grid) → analytics (dialogue
+share, pacing) → AI breakdown tagging → shot list → production (stripboard, INR
+budget, call sheets). Cinematography QC is a SEPARATE project, not part of Scripter.
 
 ## Working conventions
 - Incremental, reviewable slices — not monolithic dumps. One coherent change per commit.

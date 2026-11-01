@@ -21,7 +21,7 @@ function collectMatches(q: string): Range[] {
         for (const { node, start } of nodes) {
           if (pos <= start + (node.textContent?.length ?? 0)) {
             const off = pos - start;
-            isStart ? r.setStart(node, off) : r.setEnd(node, off);
+            if (isStart) r.setStart(node, off); else r.setEnd(node, off);
             return;
           }
         }
