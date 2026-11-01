@@ -37,6 +37,7 @@ describe('requestSceneNotes', () => {
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(body.blocks.map((b: { id: string }) => b.id)).toEqual(['h2', 'c2', 'd2']);
     expect(body.language).toBe('hindi');
+    expect(body.mode).toBe('notes');
     // malformed notes are dropped one by one; unknown ids fall back to the scene heading
     expect(notes.map(n => n.blockId)).toEqual(['d2', 'h2', 'h2']);
   });
@@ -50,6 +51,16 @@ describe('requestSceneNotes', () => {
       { blockId: 'd2', category: 'dialogue', text: 'On the nose.' },
       { blockId: 'h2', category: 'clarity', text: 'Unknown id.' },
     ]);
+  });
+
+  it('asks for proofreading when requested', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ notes: [
+      { block_id: 'd2', category: 'grammar', note: '"Two" ends without a verb.' },
+    ] }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const notes = await requestSceneNotes(script, 'd2', { mode: 'proofread' });
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).mode).toBe('proofread');
+    expect(notes[0].category).toBe('grammar');
   });
 
   it('reports a friendly error when the local server is down', async () => {

@@ -2,7 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-NoteCategory = Literal['structure', 'character', 'dialogue', 'pacing', 'clarity', 'continuity', 'format']
+NoteCategory = Literal['structure', 'character', 'dialogue', 'pacing', 'clarity', 'continuity', 'format', 'grammar']
+NotesMode = Literal['notes', 'proofread']
 
 
 class SceneBlock(BaseModel):
@@ -16,6 +17,7 @@ class NotesRequest(BaseModel):
     blocks: list[SceneBlock] = Field(min_length=1, max_length=400)
     language: str = 'english'
     focus: list[NoteCategory] = Field(default_factory=list)
+    mode: NotesMode = 'notes'   # 'proofread' = grammar/spelling in action, typos only in dialogue
 
 
 class Note(BaseModel):

@@ -9,8 +9,8 @@ export interface Comment {
   text: string;      // the comment body
   createdAt: number;
   resolved: boolean;
-  /** Who wrote it: the writer, the AI script consultant, or the rule-based checker. */
-  source?: 'user' | 'ai' | 'check';
+  /** Who wrote it: the writer, the AI script consultant, the format checker or the grammar checker. */
+  source?: 'user' | 'ai' | 'check' | 'grammar';
   category?: string;
 }
 
@@ -26,6 +26,11 @@ interface CommentStore {
   addMany: (list: NewComment[]) => void;
   /** Remove a script's open (unresolved) notes from one source, e.g. before re-running checks. */
   clearOpen: (scriptId: string, source: NonNullable<Comment['source']>) => void;
+  /**
+   * Replace a source's notes with a fresh run. `scope` limits which old notes
+   * are replaced. A finding the writer already marked Done stays done.
+   */
+  replaceRun: (scriptId: string, source: NonNullable<Comment['source']>, list: NewComment[], scope?: (c: Comment) => boolean) => void;
   remove: (id: string) => void;
   toggleResolve: (id: string) => void;
   forScript: (scriptId: string) => Comment[];
@@ -50,6 +55,17 @@ export const useCommentStore = create<CommentStore>()(
       clearOpen: (scriptId, source) => set((s) => ({
         comments: s.comments.filter(c => !(c.scriptId === scriptId && c.source === source && !c.resolved)),
       })),
+      replaceRun: (scriptId, source, list, scope = () => true) => set((s) => {
+        const old = s.comments.filter(c => c.scriptId === scriptId && c.source === source && scope(c));
+        const key = (c: Pick<Comment, 'blockId' | 'category' | 'text'>) => `${c.blockId}|${c.category}|${c.text}`;
+        const done = new Set(old.filter(c => c.resolved).map(key));
+        return {
+          comments: [
+            ...s.comments.filter(c => !old.includes(c)),
+            ...list.map(c => ({ ...c, id: genId(), createdAt: Date.now(), resolved: done.has(key(c)) })),
+          ],
+        };
+      }),
       remove: (id) => set((s) => ({ comments: s.comments.filter(c => c.id !== id) })),
       toggleResolve: (id) => set((s) => ({
         comments: s.comments.map(c => c.id === id ? { ...c, resolved: !c.resolved } : c),

@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 
 from app.api.deps import get_notes_service
 from app.main import app
-from app.prompts.notes import build_notes_messages
+from app.prompts.notes import build_notes_messages, build_proofread_messages
 from app.services.notes_service import NotesService
 
 SCENE = {
@@ -82,3 +82,18 @@ def test_prompt_forbids_rewriting():
     assert 'NEVER rewrite' in system['content']
     assert '[d1] DIALOGUE: Hi' in user['content']
     assert 'Focus on: dialogue.' in user['content']
+
+
+def test_proofread_mode_uses_the_proofreading_prompt():
+    reply = json.dumps({'notes': [{'block_id': 'a1', 'category': 'grammar', 'note': '"stares" is fine; "phone" ok.'}]})
+    client, fake = client_with(reply)
+    res = client.post('/api/ai/notes', json={**SCENE, 'mode': 'proofread'})
+    assert res.status_code == 200
+    assert res.json()['notes'][0]['category'] == 'grammar'
+    assert 'proofreader' in fake.messages[0]['content']
+
+
+def test_proofread_prompt_protects_dialogue_voice():
+    system, _ = build_proofread_messages([('d1', 'dialogue', 'kya scene hai')], 'hinglish', 5)
+    assert 'deliberate' in system['content']
+    assert 'do not rewrite' in system['content']

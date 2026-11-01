@@ -6,7 +6,10 @@ import type { Script } from '../domain/screenplay';
 import { postJSON } from '../lib/api/client';
 import { plain } from '../utils/text';
 
-export const NOTE_CATEGORIES = ['structure', 'character', 'dialogue', 'pacing', 'clarity', 'continuity', 'format'] as const;
+export const NOTE_CATEGORIES = ['structure', 'character', 'dialogue', 'pacing', 'clarity', 'continuity', 'format', 'grammar'] as const;
+
+/** 'notes' = craft notes from a script consultant; 'proofread' = spelling and grammar. */
+export type NotesMode = 'notes' | 'proofread';
 
 const noteSchema = z.object({
   block_id: z.string().nullable().optional(),
@@ -34,13 +37,19 @@ export function sceneBlocks(script: Script, blockId: string | null) {
   return blocks.slice(start, end);
 }
 
-export async function requestSceneNotes(script: Script, blockId: string | null, signal?: AbortSignal): Promise<SceneNote[]> {
+export async function requestSceneNotes(
+  script: Script, blockId: string | null, opts: { mode?: NotesMode; signal?: AbortSignal } = {},
+): Promise<SceneNote[]> {
   const scene = sceneBlocks(script, blockId)
     .map(b => ({ id: b.id, type: b.type, text: plain(b.content).trim() }))
     .filter(b => b.text);
   if (scene.length === 0) return [];
 
-  const raw = await postJSON<unknown>('/api/ai/notes', { blocks: scene, language: script.language }, { signal });
+  const raw = await postJSON<unknown>(
+    '/api/ai/notes',
+    { blocks: scene, language: script.language, mode: opts.mode ?? 'notes' },
+    { signal: opts.signal },
+  );
   const parsed = responseSchema.safeParse(raw);
   if (!parsed.success) return [];
 

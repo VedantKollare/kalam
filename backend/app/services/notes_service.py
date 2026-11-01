@@ -5,9 +5,10 @@ from pydantic import ValidationError
 from ..ai.ollama_client import OllamaClient
 from ..core.logging import logger
 from ..models.ai import Note, NotesRequest, NotesResponse
-from ..prompts.notes import build_notes_messages
+from ..prompts.notes import build_notes_messages, build_proofread_messages
 
 MAX_NOTES = 8
+MAX_PROOFREAD = 15
 
 
 class NotesService:
@@ -18,9 +19,13 @@ class NotesService:
 
     async def scene_notes(self, request: NotesRequest) -> NotesResponse:
         lines = [(b.id, b.type, b.text) for b in request.blocks if b.text.strip()]
-        messages = build_notes_messages(lines, request.language, list(request.focus), MAX_NOTES)
+        if request.mode == 'proofread':
+            messages = build_proofread_messages(lines, request.language, MAX_PROOFREAD)
+        else:
+            messages = build_notes_messages(lines, request.language, list(request.focus), MAX_NOTES)
         raw = await self.client.chat_json(messages)
-        return NotesResponse(notes=self._parse(raw, {b.id for b in request.blocks}))
+        limit = MAX_PROOFREAD if request.mode == 'proofread' else MAX_NOTES
+        return NotesResponse(notes=self._parse(raw, {b.id for b in request.blocks})[:limit])
 
     def _parse(self, raw: str, known_ids: set[str]) -> list[Note]:
         try:
@@ -39,4 +44,4 @@ class NotesService:
             if note.block_id not in known_ids:
                 note.block_id = None
             notes.append(note)
-        return notes[:MAX_NOTES]
+        return notes

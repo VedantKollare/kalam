@@ -13,7 +13,7 @@ async def scene_notes(
     notes_request: NotesRequest,
     service: NotesService = Depends(get_notes_service),
 ) -> NotesResponse:
-    """Script notes for one scene. Recommendations only - the AI never rewrites lines."""
+    """Notes or proofreading for one scene. Recommendations only - the AI never rewrites lines."""
     try:
         return await service.scene_notes(notes_request)
     except Exception as exc:
