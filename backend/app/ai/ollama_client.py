@@ -12,6 +12,21 @@ class OllamaClient:
         self.base_url = base_url.rstrip('/')
         self.model = model
 
+    async def chat_json(self, messages: list[dict], timeout: float = 120.0) -> str:
+        """One non-streamed chat turn constrained to JSON output; returns the raw JSON text."""
+        payload = {
+            'model': self.model,
+            'messages': messages,
+            'stream': False,
+            'format': 'json',
+            'options': {'temperature': 0.3},
+        }
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(f'{self.base_url}/api/chat', json=payload)
+            response.raise_for_status()
+            data = response.json()
+        return (data.get('message') or {}).get('content') or ''
+
     async def stream_chat(self, messages: list[dict]) -> AsyncGenerator[str, None]:
         url = f'{self.base_url}/api/chat'
         payload = {
