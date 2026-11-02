@@ -62,6 +62,18 @@ AI" slice is DROPPED. Do not add any feature that writes text into the script.
 - `src/domain/checks.ts` = offline script checks → `source: 'check'` notes.
 - Export: PDF, Word, Final Draft `.fdx`, Fountain (`src/utils/exportFormats.ts`).
 
+## Kalam rebrand + Writer's desk look (2026-11-02)
+- The app is now called **Kalam** in the UI. Repo, package name and localStorage keys
+  (`scripter-*`) stay as they are, so saved scripts survive.
+- Default theme `desk` ("Writer's desk": warm desk, paper page, ink-blue accent), light
+  by default; app-prefs persist v1 migrates everyone to it once. Old themes stay in the
+  ⋯ menu. One UI font (IBM Plex Sans, `--font-ui`); Courier only on the page.
+- One top bar (`TopBar`: Write/Pages, Find, `Aa` format menu, Export menu, Share, ⋯ view
+  menu) replaced the format toolbar and element tab row. The current line's element is
+  changed from the `StatusBar` under the page (or Tab). Shared `Menu` popover component.
+- Logo is a "K" placeholder (`.kmark`); the user is designing the real one. Splash still
+  uses the old infinity animation until then.
+
 ## Roadmap (next)
 Breakdown tab (props/costumes per scene, cast x scene grid) → analytics (dialogue
 share, pacing) → AI breakdown tagging → shot list → production (stripboard, INR

@@ -23,7 +23,7 @@ export default function Splash({ onDone }: Props) {
   return (
     <div className={`splash ${leaving ? 'leaving' : ''}`} onClick={finish}>
       <div className="splash__stage">
-        <svg className="splash__inf" width="300" height="150" viewBox="0 0 200 100" aria-label="Scripter">
+        <svg className="splash__inf" width="300" height="150" viewBox="0 0 200 100" aria-label="Kalam">
           <path
             pathLength={1}
             d="M 100,50 C 120,18 182,18 182,50 C 182,82 120,82 100,50 C 80,18 18,18 18,50 C 18,82 80,82 100,50 Z"

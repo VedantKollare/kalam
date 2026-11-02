@@ -43,6 +43,10 @@ export const HINGLISH = new Set(`
   ab aur bhi phir kab kaun kitna kitni kuch koi ko ki ka ke se pe par mein hi apna apni
   unko usko isko mujhse tujhe tera teri ruk ruko jao aao bulao chhod karna kiya gaya gayi
   hua hoga tha thi raha rahi rahe sahi galat bilkul zaroor shukriya dhanyavaad
+  dupatta saree kurta kurti lungi dhoti salwar kameez chappal bindi mehndi mundu veshti pottu
+  chawl haveli mohalla gali galli chowk kirana mandir masjid gurudwara ghat dabba tiffin
+  roti dal daal biryani paan samosa jalebi ladoo laddoo thali idli dosa vada sambar rasam payasam
+  puja pooja aarti shaadi baraat rangoli kolam lathi beedi bidi jhola chaiwala autowala
 `.trim().split(/\s+/));
 
 /** Words in the script's character cues, e.g. "MEERA (V.O.)" gives "meera". */

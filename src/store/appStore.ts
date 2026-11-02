@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type Mode = 'light' | 'dark';
-export type TemplateId = 'cinematic' | 'classic' | 'studio';
+export type TemplateId = 'desk' | 'cinematic' | 'classic' | 'studio';
 
 const ZOOM_MIN = 50, ZOOM_MAX = 200, ZOOM_STEP = 10;
 
@@ -38,10 +38,11 @@ interface AppStore {
 export const useAppStore = create<AppStore>()(
   persist(
     (set) => ({
-      mode: 'dark',
-      template: 'classic',
-      zoom: 160,          // sheet opens zoomed-in by default
-      drawerOpen: false,
+      mode: 'light',
+      template: 'desk',
+      // sheet opens zoomed-in, as far as the screen comfortably allows
+      zoom: typeof window === 'undefined' || window.innerWidth >= 1600 ? 160 : window.innerWidth >= 1280 ? 130 : 110,
+      drawerOpen: typeof window !== 'undefined' && window.innerWidth >= 1200,
       focusMode: false,
       shareOpen: false,
       findOpen: false,
@@ -67,9 +68,13 @@ export const useAppStore = create<AppStore>()(
     }),
     {
       name: 'scripter-app-prefs',
-      // Only remember theme + mode. Zoom resets to 160% and the drawer
-      // starts closed on every load (ignore any older persisted values).
+      // Only remember theme + mode. Zoom resets to fit the screen and the drawer opens
+      // on wide screens on every load (ignore any older persisted values).
       partialize: (s) => ({ mode: s.mode, template: s.template }),
+      // v1: the Kalam redesign. Everyone moves to the Writer's desk look once;
+      // the old themes stay in the picker.
+      version: 1,
+      migrate: () => ({ mode: 'light', template: 'desk' }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<Pick<AppStore, 'mode' | 'template'>>;
         // migrate 'creative' (old name) to 'classic'

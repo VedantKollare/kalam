@@ -3,13 +3,9 @@ import { useScriptStore } from '../store/scriptStore';
 import { useAppStore } from '../store/appStore';
 import { type ScriptLanguage } from '../types/screenplay';
 import { groupLocations } from '../utils/parseScenes';
-import { downloadDoc } from '../utils/exportDoc';
-import { downloadFountain, downloadFDX } from '../utils/exportFormats';
 import { plain } from '../utils/text';
 import { paginateScript } from '../utils/layout';
 import { formatEighths } from '../domain/pagination';
-
-interface Props { onExportPDF: () => void }
 
 const LANGS: { value: ScriptLanguage; label: string }[] = [
   { value:'english',   label:'English'  },
@@ -28,11 +24,19 @@ const TABS: { id: Tab; label: string }[] = [
   { id:'locs',   label:'Places' },
 ];
 
-export default function Drawer({ onExportPDF }: Props) {
+/** "INT. CHAWL ROOFTOP - NIGHT" reads as "Chawl rooftop, night" in the list. */
+function sceneLabel(heading: string): string {
+  const h = heading.trim().replace(/^(INT\.?\/EXT\.?|EXT\.?\/INT\.?|I\/E\.?|INT\.?|EXT\.?)\s*/i, '');
+  const parts = h.split(/\s+[-–—]\s+/).map(p => p.trim()).filter(Boolean);
+  if (!parts.length) return heading;
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+  return [cap(parts[0]), ...parts.slice(1).map(p => p.toLowerCase())].join(', ');
+}
+
+export default function Drawer() {
   const { updateScriptMeta, getActiveScript } = useScriptStore();
   const { drawerOpen } = useAppStore();
   const [tab, setTab] = useState<Tab>('scenes');
-  const [dlOpen, setDlOpen] = useState(false);
 
   const script = getActiveScript();
   const scenes = script?.blocks.filter(b => b.type === 'scene_heading') ?? [];
@@ -101,7 +105,7 @@ export default function Drawer({ onExportPDF }: Props) {
               : scenes.map((s, i) => (
                 <div key={s.id} className="d-scene" onClick={() => jumpToScene(s.id)}>
                   <span className="d-scene__n">{i + 1}</span>
-                  <span className="d-scene__h">{plain(s.content) || 'Untitled scene'}</span>
+                  <span className="d-scene__h" title={plain(s.content)}>{plain(s.content) ? sceneLabel(plain(s.content)) : 'Untitled scene'}</span>
                   {sceneMeta[s.id] && (
                     <span className="d-scene__len" title={`Starts on page ${sceneMeta[s.id].startPage} · length in eighths of a page`}>
                       p{sceneMeta[s.id].startPage} · {formatEighths(sceneMeta[s.id].eighths)}
@@ -167,33 +171,6 @@ export default function Drawer({ onExportPDF }: Props) {
             <div className="stat stat--wide"><div className="stat__l">Screen time (est.)</div><div className="stat__v">~{pages} min</div></div>
           </div>
 
-          <div style={{ display:'flex', gap:8, position:'relative' }}>
-            <button className="btn-accent" style={{ flex:1 }} onClick={onExportPDF}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
-              Export PDF
-            </button>
-            <button className="btn-outline" style={{ flex:1 }} onClick={() => setDlOpen(v => !v)}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-              Download
-            </button>
-
-            {dlOpen && (
-              <div className="dl-menu">
-                <button onClick={() => { downloadDoc(script); setDlOpen(false); }}>
-                  Word document <span className="ext">.doc</span>
-                </button>
-                <button onClick={() => { onExportPDF(); setDlOpen(false); }}>
-                  PDF document <span className="ext">.pdf</span>
-                </button>
-                <button onClick={() => { downloadFDX(script); setDlOpen(false); }} title="Opens in Final Draft">
-                  Final Draft <span className="ext">.fdx</span>
-                </button>
-                <button onClick={() => { downloadFountain(script); setDlOpen(false); }} title="Plain-text screenplay format used by Highland, WriterDuet, Slugline and others">
-                  Fountain <span className="ext">.fountain</span>
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       )}
     </aside>

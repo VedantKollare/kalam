@@ -15,7 +15,7 @@ export default function SharedView({ id }: { id: string }) {
       <div className="shared shared--msg">
         <div className="shared__icon">🔒</div>
         This link isn’t available. The script may be private or the link is wrong.
-        <a className="shared__home" href="/">Go to Scripter →</a>
+        <a className="shared__home" href="/">Go to Kalam →</a>
       </div>
     );
   }
@@ -31,7 +31,7 @@ export default function SharedView({ id }: { id: string }) {
       <div className="shared__bar">
         <span className="shared__badge">VIEW ONLY</span>
         Shared screenplay{script.author ? ` · by ${script.author}` : ''}
-        <a className="shared__cta" href="/">Open Scripter →</a>
+        <a className="shared__cta" href="/">Open Kalam →</a>
       </div>
       <div className="canvas">
         <div className="sheet">

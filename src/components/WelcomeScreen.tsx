@@ -29,14 +29,11 @@ export default function WelcomeScreen() {
           <div className="welcome__hero-top">
             <div className="welcome__brand">
               <div className="welcome__icon">
-                <svg width="30" height="15" viewBox="0 0 200 100" aria-label="Scripter">
-                  <path d="M 100,50 C 120,18 182,18 182,50 C 182,82 120,82 100,50 C 80,18 18,18 18,50 C 18,82 80,82 100,50 Z"
-                    fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round" />
-                </svg>
+                <span className="kmark" aria-hidden="true">K</span>
               </div>
               <div>
-                <p className="welcome__eyebrow">Indian Screenplay Writer</p>
-                <h1 className="welcome__title">Scripter</h1>
+                <p className="welcome__eyebrow">Screenplays for Indian cinema</p>
+                <h1 className="welcome__title">Kalam</h1>
               </div>
             </div>
           </div>

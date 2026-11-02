@@ -6,8 +6,6 @@ import { useAuthStore } from './store/authStore';
 import { pullScripts, startSync, stopSync } from './lib/sync';
 import TopBar from './components/TopBar';
 import Drawer from './components/Drawer';
-import FormatToolbar from './components/FormatToolbar';
-import ElementTabBar from './components/ElementTabBar';
 import ScreenplayEditor from './components/ScreenplayEditor';
 import CommentsPanel from './components/CommentsPanel';
 import Splash from './components/Splash';
@@ -16,7 +14,7 @@ import SharedView from './components/SharedView';
 import FindBar from './components/FindBar';
 import WelcomeScreen from './components/WelcomeScreen';
 import PageView from './components/PageView';
-import { exportToPDF } from './utils/exportPDF';
+import StatusBar from './components/StatusBar';
 
 const SHARED_ID = new URLSearchParams(window.location.search).get('s');
 
@@ -51,7 +49,7 @@ export default function App() {
 
   // Keep the browser tab title in sync with the app.
   useEffect(() => {
-    document.title = 'Scripter | Indian Screenplay Writer';
+    document.title = 'Kalam | Screenplays for Indian cinema';
   }, []);
 
   // Print (button or Ctrl+P) renders the paginated pages just in time, so the
@@ -68,12 +66,6 @@ export default function App() {
     };
   }, []);
 
-  const handleExportPDF = useCallback(async () => {
-    if (!script) return;
-    try { await exportToPDF(script); }
-    catch { alert('Export failed. Please try again.'); }
-  }, [script]);
-
   // A share link → read-only viewer (no editing chrome)
   if (SHARED_ID) return <SharedView id={SHARED_ID} />;
 
@@ -83,15 +75,14 @@ export default function App() {
         /* In a script - full app chrome */
         <>
           <TopBar />
-          {!focusMode && !pageView && <FormatToolbar />}
-          {!focusMode && !pageView && <ElementTabBar />}
           <div className="body-row">
-            {!focusMode && <Drawer onExportPDF={handleExportPDF} />}
+            {!focusMode && <Drawer />}
             {pageView
               ? <div className="canvas"><PageView script={script} /></div>
               : <ScreenplayEditor />}
             {!focusMode && <CommentsPanel />}
           </div>
+          {!focusMode && <StatusBar />}
         </>
       ) : (
         /* Home - no header, no drawer */
