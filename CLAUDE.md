@@ -1,39 +1,39 @@
-# Scripter — project context for Claude Code
+# Scripter: project context for Claude Code
 
-"Indian Screenplay Writer" — a screenwriting web app built for Indian cinema.
+"Indian Screenplay Writer": a screenwriting web app built for Indian cinema.
 Vite + React 19 + TypeScript, Zustand (persist), Tailwind v4. Offline-first
 (localStorage) with optional Supabase cloud sync. Repo:
 `github.com/VedantKollare/kalam` (renamed from scripter on 2026-11-02; GitHub redirects the old URL) → Vercel auto-deploy from `main`.
 
 ## Commands
-- `npm run dev` — dev server (Vite). Default 5173; we've been using 5174.
-- `npm run build` — production web build (`tsc -b && vite build`).
-- `npm run build:desktop` — ONE self-contained `dist/index.html` (offline, double-click). Copied to `Downloads/Scripter.html` by hand.
-- `npm test` / `npm run test:watch` — Vitest unit tests.
-- `npm run lint` — ESLint.
+- `npm run dev`: dev server (Vite). Default 5173; we've been using 5174.
+- `npm run build`: production web build (`tsc -b && vite build`).
+- `npm run build:desktop`: ONE self-contained `dist/index.html` (offline, double-click). Copied to `Downloads/Scripter.html` by hand.
+- `npm test` / `npm run test:watch`: Vitest unit tests.
+- `npm run lint`: ESLint.
 
 ## Architecture (post-refactor, in progress)
-- `src/domain/` — framework-free types + structural constants (`screenplay.ts`). The source of truth; no UI/visual concerns here.
-- `src/theme/` — visual tokens (`tokens.ts`: fonts, element colours).
-- `src/services/` — pure business logic (`scriptOperations.ts`: insert/update/delete/move/retype blocks, etc.). Unit-tested, no React.
-- `src/lib/` — `validation/scriptSchema.ts` (zod boundary for persisted data), `logger.ts` (JSON structured logs), `id.ts`, `translit.ts`, `share.ts`, `supabase.ts`, `sync.ts`.
-- `src/store/` — Zustand stores. `scriptStore` is now thin: delegates to `services/scriptOperations` via a `withActive()` helper.
-- `src/components/` — presentation (incl. `ErrorBoundary`).
-- `src/types/screenplay.ts` — backward-compat re-export barrel (domain + theme). Prefer importing from the specific module in new code.
+- `src/domain/`: framework-free types + structural constants (`screenplay.ts`). The source of truth; no UI/visual concerns here.
+- `src/theme/`: visual tokens (`tokens.ts`: fonts, element colours).
+- `src/services/`: pure business logic (`scriptOperations.ts`: insert/update/delete/move/retype blocks, etc.). Unit-tested, no React.
+- `src/lib/`: `validation/scriptSchema.ts` (zod boundary for persisted data), `logger.ts` (JSON structured logs), `id.ts`, `translit.ts`, `share.ts`, `supabase.ts`, `sync.ts`.
+- `src/store/`: Zustand stores. `scriptStore` is now thin: delegates to `services/scriptOperations` via a `withActive()` helper.
+- `src/components/`: presentation (incl. `ErrorBoundary`).
+- `src/types/screenplay.ts`: backward-compat re-export barrel (domain + theme). Prefer importing from the specific module in new code.
 
 ## Critical gotchas (read before editing the editor)
 - Block `content` is **HTML** (innerHTML, for inline B/I/U). Always read plain text via `utils/text.ts` `plain()`.
-- A Block sets innerHTML **on mount only** (`useEffect [block.id]`) — never on re-render, or the caret jumps. Don't reintroduce that bug.
+- A Block sets innerHTML **on mount only** (`useEffect [block.id]`), never on re-render, or the caret jumps. Don't reintroduce that bug.
 - Transliteration (`ScreenplayEditor` space handler): the space types INSTANTLY, then the Latin word is swapped for its Indian script in the background. Do NOT add `preventDefault` back (that caused the "extra space" lag). Hindi/Tamil/Telugu/Malayalam via Google Input Tools (needs internet).
 - Persistence: `scriptStore` persists only `scripts`; a `merge` validates them with zod (drops corrupt entries) and forces `activeScriptId:null` so the app always opens to Home.
 
-## Production refactor — plan & status
+## Production refactor: plan & status
 Goal: take Scripter to production-grade (clean architecture, SOLID, FastAPI
 backend, local AI stack, tests, DI, logging) WITHOUT breaking existing features.
 
 **Decisions locked:**
-1. **Local-first desktop shape** — React ↔ FastAPI on localhost ↔ Ollama. Keep the Vercel SPA as a separate "lite/offline" no-AI build.
-2. **Lean AI subset** — CrewAI (wraps LangChain) for the 8 agents + ChromaDB (single persistent vector store) + SentenceTransformers embeddings + LlamaIndex only for doc ingestion. Drop standalone FAISS + raw LangChain (redundant).
+1. **Local-first desktop shape**: React ↔ FastAPI on localhost ↔ Ollama. Keep the Vercel SPA as a separate "lite/offline" no-AI build.
+2. **Lean AI subset**: CrewAI (wraps LangChain) for the 8 agents + ChromaDB (single persistent vector store) + SentenceTransformers embeddings + LlamaIndex only for doc ingestion. Drop standalone FAISS + raw LangChain (redundant).
 3. Frontend foundation first.
 
 **Phases:** 1) FE foundation → 2) FastAPI skeleton (config/logging/DI/Pydantic/OpenAPI) + Ollama + typed API client → 3) agents + Chroma memory + streaming (one agent at a time) → 4) feature surfaces (character DB, scene manager, timeline, beat sheet, version history, analytics).
@@ -81,7 +81,7 @@ share, pacing) → AI breakdown tagging → shot list → production (stripboard
 budget, call sheets). Cinematography QC is a SEPARATE project, not part of Scripter.
 
 ## Working conventions
-- Incremental, reviewable slices — not monolithic dumps. One coherent change per commit.
+- Incremental, reviewable slices: not monolithic dumps. One coherent change per commit.
 - Add/extend tests with each slice. Keep `tsc -b` clean. Refactor in place; don't rewrite working code.
 - Work on the `refactor/foundation` branch; `main` is the deployable line.
-- `.env.local` (Supabase keys) is gitignored and not in the repo — re-create from `.env.example` for cloud features; the app runs fully offline without it.
+- `.env.local` (Supabase keys) is gitignored and not in the repo, re-create from `.env.example` for cloud features; the app runs fully offline without it.
