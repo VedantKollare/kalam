@@ -65,4 +65,8 @@ describe('bestSuggestion', () => {
     expect(bestSuggestion('bene', ['bend', 'been', 'bean'])).toBe('been');
     expect(bestSuggestion('xyz', [])).toBeUndefined();
   });
+
+  it('prefers a missed letter over a different letter', () => {
+    expect(bestSuggestion('soked', ['soled', 'smoked', 'socked', 'soaked'])).toBe('soaked');
+  });
 });

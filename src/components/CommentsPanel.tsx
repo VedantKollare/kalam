@@ -37,14 +37,14 @@ const TAGS: Record<string, string> = {
   // grammar checks
   'repeated-word': 'Typo', 'double-space': 'Spacing', 'space-before-punct': 'Punctuation', 'missing-space': 'Punctuation',
   'unbalanced': 'Punctuation', 'capital-start': 'Capitals', 'capital-sentence': 'Capitals', 'lowercase-i': 'Capitals',
-  'long-sentence': 'Style', 'spelling': 'Spelling', 'proofread': 'AI proofread',
+  'long-sentence': 'Style', 'spelling': 'Spelling', 'proofread': 'Proofread',
 };
 
 const SOURCE_META: Record<Source, { name: string; label: string }> = {
-  user:    { name: 'You',              label: 'Mine' },
-  ai:      { name: 'Script consultant', label: 'AI notes' },
-  grammar: { name: 'Grammar',           label: 'Grammar' },
-  check:   { name: 'Format check',      label: 'Format' },
+  user:    { name: 'You',                label: 'Mine' },
+  ai:      { name: 'Story note',         label: 'Story' },
+  grammar: { name: 'Spelling & grammar', label: 'Spelling' },
+  check:   { name: 'Formatting',         label: 'Format' },
 };
 
 const Icon = {
@@ -54,6 +54,7 @@ const Icon = {
   check: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>,
   undo: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>,
   book: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M12 7v6M9 10h6"/></svg>,
+  arrow: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>,
   x: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>,
   chevron: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>,
 };
@@ -166,13 +167,14 @@ export default function CommentsPanel() {
     }
   };
 
-  const tools: { id: string; icon: ReactNode; label: string; sub: string; run: () => void; busy: boolean; title: string }[] = [
-    { id: 'ai', icon: Icon.spark, label: 'AI notes', sub: 'This scene', run: runAI, busy: busy === 'ai',
-      title: 'Story and craft notes on the scene you are in. The AI never edits your script.' },
-    { id: 'grammar', icon: Icon.grammar, label: 'Grammar', sub: 'Script + AI', run: runGrammar, busy: busy === 'grammar',
-      title: 'Spelling, spacing and capitals across the script (offline), plus an AI proofread of this scene. Dialogue keeps its voice.' },
-    { id: 'format', icon: Icon.format, label: 'Format', sub: 'Whole script', run: runFormat, busy: false,
-      title: 'Scene headings, dialogue structure and character names (offline)' },
+  // Read-throughs, in the order a writer would usually do them.
+  const tools: { id: string; label: string; sub: string; run: () => void; busy: boolean; title: string }[] = [
+    { id: 'grammar', label: 'Spelling & grammar', sub: 'Whole script', run: runGrammar, busy: busy === 'grammar',
+      title: 'Spelling, spacing and capitals across the script, plus a closer proofread of this scene when the local AI server is running. Dialogue keeps its voice.' },
+    { id: 'format', label: 'Formatting', sub: 'Whole script', run: runFormat, busy: false,
+      title: 'Scene headings, dialogue structure and character names' },
+    { id: 'ai', label: 'Story notes', sub: 'This scene', run: runAI, busy: busy === 'ai',
+      title: 'Notes on story, character and pacing for the scene you are in, from the local AI server. It never edits your script.' },
   ];
 
   const filters: Filter[] = ['all', 'user', 'ai', 'grammar', 'check'];
@@ -180,16 +182,15 @@ export default function CommentsPanel() {
   const card = (c: Comment) => {
     const src = sourceOf(c);
     const machine = src !== 'user';
-    const tag = src === 'ai' ? c.category : c.category ? TAGS[c.category] : undefined;
+    const tag = src === 'ai' ? c.category && c.category[0].toUpperCase() + c.category.slice(1) : c.category ? TAGS[c.category] : undefined;
     return (
       <div key={c.id} className={`ncard ncard--${src} ${c.resolved ? 'is-done' : ''}`} onClick={() => jump(c.blockId)}>
         <div className="ncard__top">
-          <span className={`ncard__av ncard__av--${src}`}>
-            {src === 'user' ? (script.author || 'Y')[0].toUpperCase()
-              : src === 'ai' ? Icon.spark : src === 'grammar' ? Icon.grammar : Icon.format}
-          </span>
-          <span className="ncard__who">{src === 'user' ? script.author || 'You' : SOURCE_META[src].name}</span>
-          {tag && <span className="ncard__tag">{tag}</span>}
+          {!machine && <span className="ncard__av ncard__av--user">{(script.author || 'Y')[0].toUpperCase()}</span>}
+          {/* Machine notes are labelled by what they are about ("Spelling", "Punctuation");
+              story notes keep their source so it is clear they are suggestions. */}
+          <span className="ncard__who">{src === 'user' ? script.author || 'You' : src === 'ai' ? SOURCE_META.ai.name : tag ?? SOURCE_META[src].name}</span>
+          {src === 'ai' && tag && <span className="ncard__tag">{tag}</span>}
           <span className="ncard__time">{timeAgo(c.createdAt)}</span>
         </div>
         {c.quote && <div className="ncard__quote">{c.quote.length > 80 ? c.quote.slice(0, 80) + '…' : c.quote}</div>}
@@ -219,13 +220,14 @@ export default function CommentsPanel() {
         {openCount() > 0 && <span className="npanel__count">{openCount()}</span>}
       </div>
 
-      <div className="npanel__tools" role="toolbar" aria-label="Review tools">
+      <div className="nreads" role="group" aria-label="Read through the script">
+        <span className="nreads__label">Read through for</span>
         {tools.map(t => (
-          <button key={t.id} className={`ntool ntool--${t.id} ${t.busy ? 'is-busy' : ''}`}
+          <button key={t.id} className={`nread ${t.busy ? 'is-busy' : ''}`}
             onClick={t.run} disabled={busy !== null} title={t.title}>
-            <span className="ntool__ic">{t.busy ? <span className="nspin" /> : t.icon}</span>
-            <span className="ntool__label">{t.label}</span>
-            <span className="ntool__sub">{t.sub}</span>
+            <span className="nread__label">{t.label}</span>
+            <span className="nread__sub">{t.sub}</span>
+            <span className="nread__go" aria-hidden="true">{t.busy ? <span className="nspin" /> : Icon.arrow}</span>
           </button>
         ))}
       </div>
@@ -240,7 +242,7 @@ export default function CommentsPanel() {
         </div>
       )}
 
-      {all.length > 0 && (
+      {new Set(all.map(sourceOf)).size > 1 && (
         <div className="nfilters" role="tablist">
           {filters.filter(f => f === 'all' || all.some(c => sourceOf(c) === f)).map(f => {
             const n = f === 'all' ? openCount() : openCount(f);
@@ -259,12 +261,15 @@ export default function CommentsPanel() {
           <div className="npanel__empty">
             {all.length === 0 ? (
               <>
-                <div className="npanel__empty-title">Nothing here yet</div>
-                Select text to leave a comment, or run a review above. Notes are suggestions;
-                your script only changes when you change it.
+                <div className="npanel__empty-title">No notes yet</div>
+                Select any line to leave yourself a note, or read the script through for one
+                of the checks above. Notes never change your script.
               </>
             ) : (
-              <div className="npanel__empty-title">{done.length ? 'All caught up' : 'No notes in this view'}</div>
+              <>
+                <div className="npanel__empty-title">{done.length ? 'Nothing open' : 'No notes here'}</div>
+                {done.length > 0 && 'Notes you have dealt with are kept below.'}
+              </>
             )}
           </div>
         )}
@@ -273,7 +278,7 @@ export default function CommentsPanel() {
         {done.length > 0 && (
           <>
             <button className={`ndone ${showDone ? 'open' : ''}`} onClick={() => setShowDone(v => !v)}>
-              {Icon.chevron} Done <span>{done.length}</span>
+              {Icon.chevron} Dealt with <span>({done.length})</span>
             </button>
             {showDone && done.map(card)}
           </>

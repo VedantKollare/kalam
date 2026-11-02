@@ -77,12 +77,35 @@ export function typoDistance(a: string, b: string): number {
 
 const sameLetters = (a: string, b: string) => [...a].sort().join('') === [...b].sort().join('');
 
-/** The dictionary's suggestions are unranked: pick the closest, preferring swapped letters ("bene" gives "been"). */
+/** True when every letter of `a` appears in `b` in order, i.e. `a` is `b` with letters left out. */
+const isSubsequence = (a: string, b: string) => {
+  let i = 0;
+  for (const ch of b) if (ch === a[i]) i++;
+  return i === a.length;
+};
+
+/** True when the letter `word` is missing from `candidate` is a vowel (the commonest dropped letter). */
+const missedVowel = (word: string, candidate: string) => {
+  let i = 0;
+  while (i < word.length && word[i] === candidate[i]) i++;
+  return 'aeiou'.includes(candidate[i]);
+};
+
+/**
+ * The dictionary's suggestions are unranked: pick the closest. On a tie, prefer the
+ * commonest slips: swapped letters ("bene" gives "been"), then a missed letter,
+ * a missed vowel first ("soked" gives "soaked", not "soled" or "smoked").
+ */
 export function bestSuggestion(word: string, candidates: string[]): string | undefined {
   const w = word.toLowerCase();
   return candidates
-    .map((c, i) => ({ c, i, d: typoDistance(w, c.toLowerCase()), swap: sameLetters(w, c.toLowerCase()) }))
-    .sort((x, y) => x.d - y.d || Number(y.swap) - Number(x.swap) || x.i - y.i)[0]?.c;
+    .map((c, i) => {
+      const lc = c.toLowerCase();
+      const missed = lc.length > w.length && isSubsequence(w, lc);
+      return { c, i, d: typoDistance(w, lc), swap: sameLetters(w, lc), missed, vowel: missed && missedVowel(w, lc) };
+    })
+    .sort((x, y) => x.d - y.d || Number(y.swap) - Number(x.swap) || Number(y.missed) - Number(x.missed)
+      || Number(y.vowel) - Number(x.vowel) || x.i - y.i)[0]?.c;
 }
 
 const isSentenceStart = (text: string, at: number) => {
