@@ -1,6 +1,6 @@
-# Scripter: Indian Screenplay Writer
+# Kalam: screenplays for Indian cinema
 
-[![CI](https://github.com/VedantKollare/scripter/actions/workflows/ci.yml/badge.svg)](https://github.com/VedantKollare/scripter/actions/workflows/ci.yml)
+[![CI](https://github.com/VedantKollare/kalam/actions/workflows/ci.yml/badge.svg)](https://github.com/VedantKollare/kalam/actions/workflows/ci.yml)
 
 A professional screenwriting app built for Indian cinema. Write in **English,
 Hinglish, Hindi, Tamil, Telugu or Malayalam**, with first-class support for the

@@ -5,8 +5,8 @@ from .api.routes.ai import router as ai_router
 from .core.logging import logger
 
 app = FastAPI(
-    title='Scripter AI Backend',
-    description='Local script-notes service for Scripter. Gives recommendations; never rewrites the script.',
+    title='Kalam AI Backend',
+    description='Local script-notes service for Kalam. Gives recommendations; never rewrites the script.',
 )
 
 app.add_middleware(

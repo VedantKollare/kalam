@@ -5,7 +5,7 @@
 
 ## Context
 
-Scripter is a tool for screenwriters. A one-click "rewrite this line" button
+Kalam (formerly Scripter) is a tool for screenwriters. A one-click "rewrite this line" button
 puts machine-written dialogue into the writer's script, which many writers do
 not want and which blurs whose words the script contains.
 

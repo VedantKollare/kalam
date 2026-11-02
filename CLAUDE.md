@@ -3,7 +3,7 @@
 "Indian Screenplay Writer" — a screenwriting web app built for Indian cinema.
 Vite + React 19 + TypeScript, Zustand (persist), Tailwind v4. Offline-first
 (localStorage) with optional Supabase cloud sync. Repo:
-`github.com/VedantKollare/scripter` → Vercel auto-deploy from `main`.
+`github.com/VedantKollare/kalam` (renamed from scripter on 2026-11-02; GitHub redirects the old URL) → Vercel auto-deploy from `main`.
 
 ## Commands
 - `npm run dev` — dev server (Vite). Default 5173; we've been using 5174.
