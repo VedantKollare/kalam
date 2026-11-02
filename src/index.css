@@ -1138,10 +1138,10 @@ select.ftoolbar__font {
   padding: 5px 8px; margin-bottom: 7px; border-radius: 6px; background: rgba(127,127,127,.07);
 }
 .ncard__text { font: 500 12.5px/1.5 var(--font-ui); color: var(--text); }
-.ncard__actions { display: flex; gap: 2px; margin: 8px -6px 0; }
+.ncard__actions { display: flex; flex-wrap: wrap; gap: 2px; margin: 8px -6px 0; }
 .ncard__btn {
   display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 8px; border-radius: 6px;
-  border: 0; background: transparent; cursor: pointer; font: 600 11px var(--font-ui); color: var(--text-2);
+  border: 0; background: transparent; cursor: pointer; font: 600 11px var(--font-ui); color: var(--text-2); white-space: nowrap;
   transition: background .12s, color .12s;
 }
 .ncard__btn:hover { background: color-mix(in srgb, var(--tone) 14%, transparent); color: var(--text); }

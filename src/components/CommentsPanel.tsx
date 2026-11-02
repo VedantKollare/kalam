@@ -4,6 +4,9 @@ import { useCommentStore, type Comment } from '../store/commentStore';
 import { useAppStore } from '../store/appStore';
 import { checkScript } from '../domain/checks';
 import { checkGrammar } from '../domain/grammar';
+import { checkSpelling } from '../domain/spelling';
+import { loadDictionary } from '../services/spellchecker';
+import { useDictionaryStore } from '../store/dictionaryStore';
 import { requestSceneNotes, sceneBlocks } from '../services/aiNotes';
 import { ApiUnavailableError } from '../lib/api/client';
 import { plain } from '../utils/text';
@@ -34,7 +37,7 @@ const TAGS: Record<string, string> = {
   // grammar checks
   'repeated-word': 'Typo', 'double-space': 'Spacing', 'space-before-punct': 'Punctuation', 'missing-space': 'Punctuation',
   'unbalanced': 'Punctuation', 'capital-start': 'Capitals', 'capital-sentence': 'Capitals', 'lowercase-i': 'Capitals',
-  'long-sentence': 'Style', 'proofread': 'AI proofread',
+  'long-sentence': 'Style', 'spelling': 'Spelling', 'proofread': 'AI proofread',
 };
 
 const SOURCE_META: Record<Source, { name: string; label: string }> = {
@@ -50,13 +53,15 @@ const Icon = {
   format: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h5M8 16h6"/></svg>,
   check: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7"/></svg>,
   undo: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>,
+  book: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M12 7v6M9 10h6"/></svg>,
   x: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>,
   chevron: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>,
 };
 
 export default function CommentsPanel() {
   const { getActiveScript } = useScriptStore();
-  const { comments, remove, toggleResolve, addMany, replaceRun } = useCommentStore();
+  const { comments, remove, removeWord, toggleResolve, addMany, replaceRun } = useCommentStore();
+  const addWord = useDictionaryStore(s => s.add);
   const focusedBlockId = useAppStore(s => s.focusedBlockId);
   const script = getActiveScript();
   const [filter, setFilter] = useState<Filter>('all');
@@ -97,16 +102,31 @@ export default function CommentsPanel() {
   };
 
   const runGrammar = async () => {
-    // 1. Offline rules on the whole script: instant.
-    const findings = checkGrammar(plainBlocks());
-    replaceRun(script.id, 'grammar', findings.map(f => ({
-      scriptId: script.id, blockId: f.blockId, quote: quoteOf(f.blockId), text: f.message, source: 'grammar', category: f.rule,
-    })), c => c.category !== 'proofread');
+    setBusy('grammar');
+    setStatus({ kind: 'busy', text: 'Checking spelling and grammar…' });
+
+    // 1. Offline rules and spelling on the whole script. The dictionary loads on first use.
+    const blocks = plainBlocks();
+    type Notes = Parameters<typeof replaceRun>[2];
+    const rules: Notes = checkGrammar(blocks).map(f => ({
+      scriptId: script.id, blockId: f.blockId, quote: quoteOf(f.blockId), text: f.message, source: 'grammar' as const, category: f.rule,
+    }));
+    let spelling: Notes = [];
+    let spellNote = '';
+    try {
+      const found = checkSpelling(blocks, await loadDictionary(), useDictionaryStore.getState().words);
+      spelling = found.map(f => ({
+        scriptId: script.id, blockId: f.blockId, quote: quoteOf(f.blockId), text: f.message, source: 'grammar' as const, category: 'spelling', word: f.word,
+      }));
+    } catch {
+      spellNote = ' (The spelling dictionary could not load.)';
+    }
+    const findings = [...rules, ...spelling];
+    replaceRun(script.id, 'grammar', findings, c => c.category !== 'proofread');
     setFilter('grammar');
-    const offline = findings.length ? `${plural(findings.length, 'issue')} found in the script.` : 'No typos found in the script.';
+    const offline = (findings.length ? `${plural(findings.length, 'issue')} found in the script.` : 'No typos found in the script.') + spellNote;
 
     // 2. AI proofread of the current scene, if the local server is running.
-    setBusy('grammar');
     setStatus({ kind: 'busy', text: `${offline} Proofreading this scene with AI…` });
     const sceneIds = new Set(sceneBlocks(script, focusedBlockId).map(b => b.id));
     try {
@@ -150,7 +170,7 @@ export default function CommentsPanel() {
     { id: 'ai', icon: Icon.spark, label: 'AI notes', sub: 'This scene', run: runAI, busy: busy === 'ai',
       title: 'Story and craft notes on the scene you are in. The AI never edits your script.' },
     { id: 'grammar', icon: Icon.grammar, label: 'Grammar', sub: 'Script + AI', run: runGrammar, busy: busy === 'grammar',
-      title: 'Typos, spacing and capitals across the script (offline), plus an AI proofread of this scene. Dialogue keeps its voice.' },
+      title: 'Spelling, spacing and capitals across the script (offline), plus an AI proofread of this scene. Dialogue keeps its voice.' },
     { id: 'format', icon: Icon.format, label: 'Format', sub: 'Whole script', run: runFormat, busy: false,
       title: 'Scene headings, dialogue structure and character names (offline)' },
   ];
@@ -178,6 +198,12 @@ export default function CommentsPanel() {
           <button className="ncard__btn" onClick={() => toggleResolve(c.id)}>
             {c.resolved ? <>{Icon.undo} Reopen</> : <>{Icon.check} {machine ? 'Done' : 'Resolve'}</>}
           </button>
+          {c.category === 'spelling' && c.word && !c.resolved && (
+            <button className="ncard__btn" title={`Never flag "${c.word}" again, in any script`}
+              onClick={() => { addWord(c.word!); removeWord(c.word!); }}>
+              {Icon.book} Add to dictionary
+            </button>
+          )}
           <button className="ncard__btn ncard__btn--quiet" onClick={() => remove(c.id)}>
             {Icon.x} {machine ? 'Dismiss' : 'Delete'}
           </button>

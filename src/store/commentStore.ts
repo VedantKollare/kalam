@@ -12,9 +12,11 @@ export interface Comment {
   /** Who wrote it: the writer, the AI script consultant, the format checker or the grammar checker. */
   source?: 'user' | 'ai' | 'check' | 'grammar';
   category?: string;
+  /** For spelling notes: the flagged word, so it can be added to the dictionary. */
+  word?: string;
 }
 
-type NewComment = Pick<Comment, 'scriptId' | 'blockId' | 'quote' | 'text'> & Partial<Pick<Comment, 'source' | 'category'>>;
+type NewComment = Pick<Comment, 'scriptId' | 'blockId' | 'quote' | 'text'> & Partial<Pick<Comment, 'source' | 'category' | 'word'>>;
 
 function genId() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -32,6 +34,8 @@ interface CommentStore {
    */
   replaceRun: (scriptId: string, source: NonNullable<Comment['source']>, list: NewComment[], scope?: (c: Comment) => boolean) => void;
   remove: (id: string) => void;
+  /** Drop open spelling notes about a word (in every script), e.g. once it is added to the dictionary. */
+  removeWord: (word: string) => void;
   toggleResolve: (id: string) => void;
   forScript: (scriptId: string) => Comment[];
 }
@@ -67,6 +71,9 @@ export const useCommentStore = create<CommentStore>()(
         };
       }),
       remove: (id) => set((s) => ({ comments: s.comments.filter(c => c.id !== id) })),
+      removeWord: (word) => set((s) => ({
+        comments: s.comments.filter(c => !(c.category === 'spelling' && !c.resolved && c.word?.toLowerCase() === word.toLowerCase())),
+      })),
       toggleResolve: (id) => set((s) => ({
         comments: s.comments.map(c => c.id === id ? { ...c, resolved: !c.resolved } : c),
       })),
