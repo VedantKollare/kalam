@@ -516,49 +516,35 @@ select.s-input {
 .pdf-export .el-song { color:#111; font-style:italic; border-left:2px solid #555; padding-left:14%; padding-right:14%; margin:3px 0; }
 
 /* ══════════════════════════════════════════════════════════════
-   STARTUP SPLASH  (warm golden · infinity draws itself)
+   STARTUP SPLASH  (Kalam mark on the theme's own background)
 ══════════════════════════════════════════════════════════════ */
 .splash {
   position: fixed; inset: 0; z-index: 9999;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  background:
-    radial-gradient(circle at 50% 42%,
-      #FCF6E6 0%, #F4E2B0 38%, #E9C97F 72%, #DDB661 100%);
-  opacity: 1;
-  transition: opacity .6s ease;
-}
-.splash::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(circle at 50% 45%, transparent 55%, rgba(120,80,20,0.10) 100%);
+  cursor: pointer; background: var(--bg-root);
+  opacity: 1; transition: opacity .45s ease;
 }
 .splash.leaving { opacity: 0; }
-
-.splash__stage {
-  position: relative; z-index: 1;
-  display: flex; flex-direction: column; align-items: center; gap: 34px;
+.splash__stage { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.splash .splash__mark {
+  margin-bottom: 6px;
+  opacity: 0; transform: translateY(10px) scale(.92);
+  animation: splashIn .6s cubic-bezier(.2,.8,.2,1) .15s forwards;
 }
-
-.splash__inf { overflow: visible; display: block; }
-.splash__inf path {
-  fill: none; stroke: #241803;
-  stroke-width: 4.4; stroke-linecap: round; stroke-linejoin: round;
-  stroke-dasharray: 1; stroke-dashoffset: 1;
-  filter: drop-shadow(0 2px 3px rgba(90,55,10,0.25));
-  animation: splashDraw 3.1s ease-in-out 0.3s forwards;
+.splash__name {
+  font: 600 44px/1 var(--font-ui); letter-spacing: -0.02em; color: var(--text);
+  opacity: 0; transform: translateY(8px);
+  animation: splashIn .6s cubic-bezier(.2,.8,.2,1) .45s forwards;
 }
-@keyframes splashDraw { to { stroke-dashoffset: 0; } }
-
 .splash__tag {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-style: italic; font-weight: 500; font-size: 23px;
-  letter-spacing: 0.04em; color: #2E2009;
-  text-shadow: 0 1px 1px rgba(255,255,255,0.4);
-  opacity: 0; transform: translateY(12px);
-  animation: splashTag 1s ease-out 2.5s forwards;
+  font: 400 16px var(--font-ui); color: var(--text-2);
+  opacity: 0; transform: translateY(8px);
+  animation: splashIn .6s cubic-bezier(.2,.8,.2,1) .8s forwards;
 }
-.splash__tag .dot { opacity: 0.5; }
-@keyframes splashTag { to { opacity: 1; transform: translateY(0); } }
+@keyframes splashIn { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .splash__mark, .splash__name, .splash__tag { animation-duration: .01s; animation-delay: 0s; }
+}
 
 /* ═══════════════════════════════════════════════════════════════
    PREMIUM PASS - atmosphere, glass, glow, motion
@@ -1204,13 +1190,16 @@ select.ftoolbar__font {
 }
 [data-template="desk"][data-mode="light"] .npanel { --n-ai:#6B4F8A; --n-grammar:#2C4A78; --n-check:#3F6B4E; }
 
-/* Kalam monogram: stands in until the logo is final */
+/* Kalam logo tile (KalamMark): a nib on ink */
 .kmark {
   width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
   display: inline-grid; place-items: center;
   background: var(--text); color: var(--bg-root);
-  font: 600 18px/1 var(--font-ui);
 }
+.kmark svg { display: block; }
+.kmark__draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: kmarkDraw 1s ease-in-out .35s forwards; }
+@keyframes kmarkDraw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .kmark__draw { animation: none; stroke-dashoffset: 0; } }
 
 /* ── One top bar ── */
 .kbar {
@@ -1345,7 +1334,6 @@ select.ftoolbar__font {
   box-shadow: var(--sheet-shadow); animation: none;
 }
 [data-template="desk"] .welcome__icon { width: auto; height: auto; background: none; box-shadow: none; }
-[data-template="desk"] .welcome__icon .kmark { width: 48px; height: 48px; border-radius: 12px; font-size: 26px; }
 [data-template="desk"] .welcome__brand { text-align: left; }
 [data-template="desk"] .welcome__eyebrow { color: var(--text-2); font: 500 12px var(--font-ui); letter-spacing: .08em; }
 [data-template="desk"] .welcome__title {
@@ -1361,3 +1349,12 @@ select.ftoolbar__font {
 [data-template="desk"] .home-script { background: var(--bg-card); box-shadow: none; }
 [data-template="desk"] .welcome__feat, [data-template="desk"] .welcome__hero-card { background: transparent; border-color: var(--line); box-shadow: none; }
 [data-template="desk"] .welcome__feat svg, [data-template="desk"] .welcome__feat-icon { color: var(--accent); }
+
+/* Home header: mark, name and tagline stacked on one centre line */
+[data-template="desk"] .welcome__hero-top { justify-content: center; }
+[data-template="desk"] .welcome__brand { flex-direction: column; gap: 14px; text-align: center; }
+[data-template="desk"] .welcome__brand > div { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+[data-template="desk"] .welcome__brand .welcome__eyebrow { order: 2; }
+[data-template="desk"] .welcome__title { font-size: 44px; }
+[data-template="desk"] .welcome__hero { padding: 40px 32px 32px; gap: 14px; }
+[data-template="desk"] .welcome__tag { margin-top: 4px; }

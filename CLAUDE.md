@@ -71,8 +71,9 @@ AI" slice is DROPPED. Do not add any feature that writes text into the script.
 - One top bar (`TopBar`: Write/Pages, Find, `Aa` format menu, Export menu, Share, ⋯ view
   menu) replaced the format toolbar and element tab row. The current line's element is
   changed from the `StatusBar` under the page (or Tab). Shared `Menu` popover component.
-- Logo is a "K" placeholder (`.kmark`); the user is designing the real one. Splash still
-  uses the old infinity animation until then.
+- Logo = fountain-pen NIB on an ink tile (user's sketch, chosen 2026-11-02): `KalamMark`
+  component (simplified below 48px), favicon in `index.html`. Splash draws the nib on the
+  theme background (no gold); `index.html` sets data-template/mode before first paint.
 
 ## Roadmap (next)
 Breakdown tab (props/costumes per scene, cast x scene grid) → analytics (dialogue

@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react';
 import { useScriptStore } from '../store/scriptStore';
 import './WelcomeScreen.css';
+import KalamMark from './KalamMark';
 
 const S = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
 
@@ -29,7 +30,7 @@ export default function WelcomeScreen() {
           <div className="welcome__hero-top">
             <div className="welcome__brand">
               <div className="welcome__icon">
-                <span className="kmark" aria-hidden="true">K</span>
+                <KalamMark size={56} />
               </div>
               <div>
                 <p className="welcome__eyebrow">Screenplays for Indian cinema</p>

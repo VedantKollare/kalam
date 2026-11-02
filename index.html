@@ -2,9 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231F1B16'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='IBM Plex Sans,Arial,sans-serif' font-weight='600' font-size='36' fill='%23FFFDF8'%3EK%3C/text%3E%3C/svg%3E" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%231F1B16'/%3E%3Cg transform='translate(8 8) scale(.75)' fill='none' stroke='%23FFFDF8' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M32 11c4 8 10 14 10 23v6H22v-6c0-9 6-15 10-23z'/%3E%3Cpath d='M32 11v16'/%3E%3Crect x='20' y='40' width='24' height='5' rx='1.5'/%3E%3Cpath d='M23 45l2 8h14l2-8'/%3E%3C/g%3E%3C/svg%3E" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kalam | Screenplays for Indian cinema</title>
+    <script>
+      // Apply the saved theme before the first paint, so the splash and app
+      // never flash a different colour while the scripts load.
+      try {
+        var p = JSON.parse(localStorage.getItem('scripter-app-prefs') || '{}');
+        var st = (p.version >= 1 && p.state) || {};
+        document.documentElement.setAttribute('data-template', st.template || 'desk');
+        document.documentElement.setAttribute('data-mode', st.mode || 'light');
+      } catch (e) {
+        document.documentElement.setAttribute('data-template', 'desk');
+        document.documentElement.setAttribute('data-mode', 'light');
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

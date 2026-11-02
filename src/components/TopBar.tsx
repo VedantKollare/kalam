@@ -8,6 +8,7 @@ import { downloadDoc } from '../utils/exportDoc';
 import { downloadFountain, downloadFDX } from '../utils/exportFormats';
 import { FONT_OPTIONS, DEFAULT_FONT, DEFAULT_SIZE, type Align } from '../types/screenplay';
 import Menu from './Menu';
+import KalamMark from './KalamMark';
 
 const THEMES: { id: TemplateId; label: string }[] = [
   { id: 'desk',      label: "Writer's desk" },
@@ -126,7 +127,7 @@ export default function TopBar() {
       </button>
 
       <button className="kbar__brand" onClick={() => setActiveScript(null)} title="Home" aria-label="Kalam home">
-        <span className="kmark" aria-hidden="true">K</span>
+        <KalamMark size={32} />
         <span className="kbar__name">Kalam</span>
       </button>
 
