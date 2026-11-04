@@ -12,6 +12,7 @@ interface ScriptStore {
 
   // Script management
   createScript: () => void;
+  createSample: () => void;
   deleteScript: (id: string) => void;
   setActiveScript: (id: string | null) => void;
   updateScriptMeta: (id: string, meta: Partial<Pick<Script, 'title' | 'author' | 'language' | 'font' | 'fontSize' | 'contact' | 'draftDate' | 'pageSize'>>) => void;
@@ -50,6 +51,11 @@ export const useScriptStore = create<ScriptStore>()(
 
       createScript: () => {
         const script = ops.createDefaultScript();
+        set(state => ({ scripts: [script, ...state.scripts], activeScriptId: script.id }));
+      },
+
+      createSample: () => {
+        const script = ops.createSampleScript();
         set(state => ({ scripts: [script, ...state.scripts], activeScriptId: script.id }));
       },
 

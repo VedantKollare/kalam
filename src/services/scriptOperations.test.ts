@@ -14,6 +14,16 @@ function base(): Script {
 }
 
 describe('scriptOperations', () => {
+  it('createSampleScript passes the script checks and shows a song and the interval', async () => {
+    const { checkScript } = await import('../domain/checks');
+    const s = ops.createSampleScript();
+    const types = new Set(s.blocks.map(b => b.type));
+    expect(types.has('song')).toBe(true);
+    expect(types.has('intermission')).toBe(true);
+    expect(new Set(s.blocks.map(b => b.id)).size).toBe(s.blocks.length);
+    expect(checkScript(s.blocks.map(b => ({ id: b.id, type: b.type, text: b.content })))).toEqual([]);
+  });
+
   it('createDefaultScript starts with one empty scene heading', () => {
     const s = ops.createDefaultScript();
     expect(s.blocks).toHaveLength(1);

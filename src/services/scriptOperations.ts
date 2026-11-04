@@ -27,6 +27,46 @@ export function createDefaultScript(): Script {
   };
 }
 
+/**
+ * A short Hinglish sample scene for first-time visitors. It shows the parts of
+ * Kalam other tools lack (a song and the interval) on a properly paginated page.
+ */
+export function createSampleScript(): Script {
+  const now = Date.now();
+  const lines: [ScreenplayBlock['type'], string][] = [
+    ['scene_heading', 'INT. CHAWL ROOFTOP - NIGHT'],
+    ['action', 'Rain drums on the tin sheets. MEERA (24) waits by the water tank, a bundle of script pages held against her chest.'],
+    ['action', 'The door bangs open. ARJUN (26), soaked and out of breath.'],
+    ['character', 'ARJUN'],
+    ['parenthetical', '(panting)'],
+    ['dialogue', 'Tumne sach mein bhej diya? Producer ko?'],
+    ['character', 'MEERA'],
+    ['dialogue', 'Haan. Aur kal subah meeting hai.'],
+    ['character', 'ARJUN'],
+    ['dialogue', 'Kal? Humne climax abhi tak likha bhi nahi.'],
+    ['character', 'MEERA'],
+    ['parenthetical', '(smiling)'],
+    ['dialogue', 'Toh aaj raat likhenge. Interval tak sab badal jaayega.'],
+    ['song', 'Baarish ke baad, sheher naya sa lage'],
+    ['song', 'Har khidki mein ek kahaani jage'],
+    ['action', 'Across the city, windows light up one by one. On the rooftop, Meera and Arjun write until the rain stops.'],
+    ['intermission', 'INTERVAL'],
+    ['scene_heading', 'EXT. MARINE DRIVE - DAWN'],
+    ['action', 'The sea is calm. Arjun reads the last page aloud. Meera closes her eyes and listens.'],
+    ['transition', 'CUT TO:'],
+  ];
+  return {
+    id: generateId(),
+    title: 'Baarish Ke Baad',
+    author: 'A Kalam sample',
+    language: 'hinglish',
+    draftDate: 'Sample scene',
+    blocks: lines.map(([type, content]) => ({ id: generateId(), type, content })),
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
 /** Insert a block immediately after `afterId` (or at the front if not found). */
 export function insertBlock(script: Script, afterId: string, block: ScreenplayBlock): Script {
   const idx = script.blocks.findIndex(b => b.id === afterId);
