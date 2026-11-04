@@ -39,9 +39,40 @@ describe('grammar checks', () => {
     expect(rules('dialogue', `W${long}`)).toEqual([]);
   });
 
-  it('skips headings, cues, songs and Indian-script text', () => {
+  it('skips headings, cues and songs', () => {
     expect(rules('scene_heading', 'int. a  -  day')).toEqual([]);
     expect(rules('song', 'baarish  ki boondein')).toEqual([]);
-    expect(rules('action', 'वह  खिड़की तक जाती है')).toEqual([]);
+    expect(rules('action', 'वह  खिड़की तक जाती है')).toEqual(['double-space']);   // Indian scripts get spacing checks
+  });
+});
+
+describe('grammar checks in Indian scripts', () => {
+  it('passes clean Hindi, Tamil, Telugu and Malayalam, including reduplication', () => {
+    expect(rules('action', 'मीरा धीरे-धीरे खिड़की तक जाती है। बारिश, फिर से।')).toEqual([]);
+    expect(rules('dialogue', 'बार बार मत पूछो।')).toEqual([]);
+    expect(rules('dialogue', 'மெல்ல மெல்ல வா.')).toEqual([]);
+    expect(rules('dialogue', 'నువ్వు ఎక్కడ ఉన్నావు?')).toEqual([]);
+    expect(rules('action', 'അവൾ ജനലിനരികിൽ ഇരിക്കുന്നു.')).toEqual([]);
+  });
+
+  it('finds spacing and punctuation slips around the danda', () => {
+    expect(rules('action', 'मीरा  रुकती है।')).toEqual(['double-space']);
+    expect(rules('action', 'मीरा रुकती है ।')).toEqual(['space-before-punct']);
+    expect(rules('action', 'मीरा रुकती है।फिर जाती है।')).toEqual(['missing-space']);
+    expect(rules('dialogue', 'वो बोला "चलो।')).toEqual(['unbalanced']);
+  });
+
+  it('flags an English letter typed inside an Indian-script word', () => {
+    const found = checkGrammar([{ id: 'm', type: 'dialogue', text: 'तुमने सचh में भेज दिया?' }]);
+    expect(found.map(f => f.rule)).toEqual(['mixed-script']);
+    expect(found[0].message).toMatch(/सचh.*Devanagari/);
+  });
+
+  it('leaves English words written next to Indian-script words alone', () => {
+    expect(rules('dialogue', 'मेरा phone कहाँ है?')).toEqual([]);
+  });
+
+  it('skips capitalisation rules, which do not apply to these scripts', () => {
+    expect(rules('action', 'मीरा रुकती है। फिर जाती है।')).toEqual([]);
   });
 });

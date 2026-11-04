@@ -24,7 +24,14 @@ describe('script checks', () => {
     expect(rules([b('scene_heading', 'EXT. ROOFTOP - DAY'), b('action', 'x')])).toEqual([]);
   });
 
-  it('leaves Indian-language headings alone', () => {
+  it('checks headings written in Hindi, Tamil, Telugu and Malayalam', () => {
+    for (const h of ['अंदर. रसोई - रात', 'வெளியே. கடற்கரை - பகல்', 'లోపల. వంటగది - రాత్రి', 'പുറത്ത്. കടൽത്തീരം - രാവിലെ', 'INT. रसोई - रात'])
+      expect(rules([b('scene_heading', h), b('action', 'x')])).toEqual([]);
+    expect(rules([b('scene_heading', 'अंदर. रसोई'), b('action', 'x')])).toEqual(['heading-time']);
+    expect(rules([b('scene_heading', 'बाहर - दिन'), b('action', 'x')])).toEqual(['heading-location']);
+  });
+
+  it('leaves free-form Indian-language headings alone', () => {
     expect(rules([b('scene_heading', 'अंदर. रसोई - रात'), b('action', 'x')])).toEqual([]);
   });
 

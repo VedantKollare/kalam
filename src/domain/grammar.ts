@@ -2,8 +2,12 @@
 //
 // Screenplay-aware: dialogue is how characters talk, so it only gets typo
 // checks (spacing, punctuation, quotes), never style rules; repeated words
-// and long sentences are only flagged in action. Indian-script text is
-// skipped. Like the other checks, this flags and never changes the text.
+// and long sentences are only flagged in action. Text in Hindi, Tamil,
+// Telugu or Malayalam script gets the script-neutral checks only: spacing,
+// punctuation (including the danda), unclosed quotes and brackets, and an
+// English letter typed inside an Indian-script word. Repeated words are left
+// alone there, because reduplication ("धीरे-धीरे", "மெல்ல மெல்ல") is normal.
+// Like the other checks, this flags and never changes the text.
 
 import type { ElementType } from './screenplay';
 
@@ -15,7 +19,7 @@ export interface GrammarInput {
 
 export type GrammarRule =
   | 'repeated-word' | 'double-space' | 'space-before-punct' | 'missing-space'
-  | 'capital-start' | 'capital-sentence' | 'lowercase-i' | 'unbalanced' | 'long-sentence';
+  | 'capital-start' | 'capital-sentence' | 'lowercase-i' | 'unbalanced' | 'long-sentence' | 'mixed-script';
 
 export interface GrammarFinding {
   blockId: string;
@@ -28,6 +32,14 @@ const LONG_SENTENCE = 40;
 const ABBREV = /\b(e\.g|i\.e|etc|vs|mr|mrs|ms|dr|st|no|approx)\.$/i;
 const REPEAT_OK = new Set(['had', 'that', 'is']);   // "had had", "that that" can be correct
 
+/** Letters of the four Indian scripts Kalam writes in: Devanagari, Tamil, Telugu, Malayalam. */
+const INDIC = /[\p{sc=Deva}\p{sc=Taml}\p{sc=Telu}\p{sc=Mlym}]/u;
+/** A word with an English letter right next to an Indian-script letter. */
+const MIXED_WORD = /[^\s"“”'‘’(),.!?;:\u0964\u0965-]*(?:[\p{sc=Deva}\p{sc=Taml}\p{sc=Telu}\p{sc=Mlym}][A-Za-z]|[A-Za-z][\p{sc=Deva}\p{sc=Taml}\p{sc=Telu}\p{sc=Mlym}])[^\s"“”'‘’(),.!?;:\u0964\u0965-]*/u;
+const SCRIPT_NAME: [RegExp, string][] = [
+  [/\p{sc=Deva}/u, 'Devanagari'], [/\p{sc=Taml}/u, 'Tamil'], [/\p{sc=Telu}/u, 'Telugu'], [/\p{sc=Mlym}/u, 'Malayalam'],
+];
+
 const snippet = (text: string, at: number, len: number) => {
   const start = Math.max(0, at - 12);
   const end = Math.min(text.length, at + len + 12);
@@ -39,10 +51,16 @@ export function checkGrammar(blocks: GrammarInput[]): GrammarFinding[] {
 
   for (const b of blocks) {
     const text = b.text.replace(/\xa0/g, ' ');
-    if (!CHECKED.includes(b.type) || !/[A-Za-z]/.test(text)) continue;
+    if (!CHECKED.includes(b.type)) continue;
     const add = (rule: GrammarRule, message: string) => out.push({ blockId: b.id, rule, message });
     const isAction = b.type === 'action';
     const body = b.type === 'parenthetical' ? text.replace(/^\(|\)$/g, '') : text;
+
+    if (INDIC.test(body)) {
+      checkIndic(body, add);
+      continue;
+    }
+    if (!/[A-Za-z]/.test(text)) continue;
 
     // Spacing and punctuation (all checked elements)
     // Name the neighbouring words: extra spaces are invisible once rendered.
@@ -96,4 +114,29 @@ export function checkGrammar(blocks: GrammarInput[]): GrammarFinding[] {
   }
 
   return out;
+}
+
+/** Script-neutral checks for text in an Indian script. */
+function checkIndic(body: string, add: (rule: GrammarRule, message: string) => void) {
+  const dbl = /(\S+) {2,}(\S+)/.exec(body);
+  if (dbl) add('double-space', `Extra space between "${dbl[1]}" and "${dbl[2]}".`);
+
+  const before = /(\S+)\s+([,;:!?\u0964\u0965]|\.(?!\.))/.exec(body);
+  if (before) add('space-before-punct', `Space before "${before[2]}" after "${before[1]}".`);
+
+  const after = /(\S*)([,;:!?\u0964\u0965])(\p{L}\S*)/u.exec(body);
+  if (after) {
+    const word = `${after[1]}${after[2]}${after[3]}`.replace(/[.,;:!?\u0964\u0965]+$/, '');
+    add('missing-space', `No space after "${after[2]}" in "${word}".`);
+  }
+
+  const count = (re: RegExp) => (body.match(re) ?? []).length;
+  if (count(/\(/g) !== count(/\)/g)) add('unbalanced', 'A bracket is opened but never closed (or the other way round).');
+  else if (count(/"/g) % 2 || count(/“/g) !== count(/”/g)) add('unbalanced', 'A quotation mark is opened but never closed.');
+
+  const mixed = MIXED_WORD.exec(body);
+  if (mixed) {
+    const script = SCRIPT_NAME.find(([re]) => re.test(mixed[0]))?.[1] ?? 'Indian-script';
+    add('mixed-script', `"${mixed[0]}" mixes English letters with ${script} letters. The keyboard may have switched mid-word.`);
+  }
 }

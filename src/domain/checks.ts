@@ -22,6 +22,22 @@ const PREFIX_RE = /^(INT|EXT|EST|INT\.?\/EXT|EXT\.?\/INT|I\/E)[.\s-]/i;
 const TIME_RE = /[\s\-–—](DAY|NIGHT|MORNING|EVENING|AFTERNOON|DAWN|DUSK|CONTINUOUS|LATER|MOMENTS LATER|SAME|SUNSET|SUNRISE|NOON|MIDNIGHT)\s*\)?$/i;
 const isLatin = (s: string) => /[A-Za-z]/.test(s);
 
+// Heading words in Hindi, Tamil, Telugu and Malayalam, so headings written in those
+// languages get the same checks. A native speaker should review these lists.
+const LOCAL_INT_EXT = new Set([
+  'अंदर', 'अन्दर', 'भीतर', 'बाहर',            // Hindi
+  'உள்ளே', 'உள்', 'வெளியே', 'வெளி',         // Tamil
+  'లోపల', 'బయట',                              // Telugu
+  'അകത്ത്', 'അകം', 'പുറത്ത്', 'പുറം',        // Malayalam
+]);
+const LOCAL_TIME = new Set([
+  'दिन', 'रात', 'सुबह', 'शाम', 'दोपहर', 'भोर', 'संध्या', 'लगातार',
+  'பகல்', 'இரவு', 'காலை', 'மாலை', 'மதியம்', 'அதிகாலை',
+  'పగలు', 'రాత్రి', 'ఉదయం', 'సాయంత్రం', 'మధ్యాహ్నం', 'తెల్లవారుజాము',
+  'പകൽ', 'രാത്രി', 'രാവിലെ', 'വൈകുന്നേരം', 'ഉച്ച', 'പുലർച്ചെ',
+]);
+const headingTokens = (s: string) => s.split(/[\s.,:;()/।\-–—]+/).filter(Boolean);
+
 /** "DR. MEHTA" and "DR MEHTA" → the same key, so near-duplicates can be found. */
 const nameKey = (name: string) => name.replace(/[^\p{L}\p{N}]/gu, '');
 
@@ -46,16 +62,23 @@ export function checkScript(blocks: CheckInput[]): CheckFinding[] {
       closeScene();
       sceneStart = b;
       sceneHasContent = false;
-      // English-style headings get the standard checks; Indian-language headings are free-form.
-      if (isLatin(text) && !PREFIX_RE.test(text)) {
+      // Headings in English, or starting with a local word for inside/outside, get the
+      // standard checks. Other Indian-language headings stay free-form.
+      const tokens = headingTokens(text);
+      const localPrefix = LOCAL_INT_EXT.has(tokens[0] ?? '');
+      const latinPrefix = PREFIX_RE.test(text);
+      const hasTime = TIME_RE.test(text) || LOCAL_TIME.has(tokens[tokens.length - 1] ?? '');
+      if (isLatin(text) && !latinPrefix && !localPrefix) {
         out.push({ blockId: b.id, rule: 'heading-prefix', message: 'Scene heading does not start with INT. or EXT. - a breakdown cannot tell if this is interior or exterior.' });
       }
-      const location = text.replace(/^(INT\.?\/EXT|EXT\.?\/INT|I\/E|INT|EXT|EST)\.?/i, '').replace(TIME_RE, '');
-      if (PREFIX_RE.test(text) && !/[\p{L}\p{N}]/u.test(location)) {
+      const location = latinPrefix
+        ? text.replace(/^(INT\.?\/EXT|EXT\.?\/INT|I\/E|INT|EXT|EST)\.?/i, '').replace(TIME_RE, '')
+        : tokens.filter((t, i) => !LOCAL_INT_EXT.has(t) && !(i === tokens.length - 1 && LOCAL_TIME.has(t))).join(' ');
+      if ((latinPrefix || localPrefix) && !/[\p{L}\p{N}]/u.test(location.replace(/\b(DAY|NIGHT|INT|EXT)\b/gi, ''))) {
         out.push({ blockId: b.id, rule: 'heading-location', message: 'Scene heading has no location - where does this scene take place?' });
       }
-      if (isLatin(text) && !TIME_RE.test(text)) {
-        out.push({ blockId: b.id, rule: 'heading-time', message: 'Scene heading has no time of day (DAY, NIGHT…). Scheduling needs it.' });
+      if ((isLatin(text) || localPrefix) && !hasTime) {
+        out.push({ blockId: b.id, rule: 'heading-time', message: 'Scene heading has no time of day (DAY, NIGHT, दिन, रात…). Scheduling needs it.' });
       }
     } else {
       sceneHasContent = true;

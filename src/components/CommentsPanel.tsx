@@ -38,7 +38,7 @@ const TAGS: Record<string, string> = {
   // grammar checks
   'repeated-word': 'Typo', 'double-space': 'Spacing', 'space-before-punct': 'Punctuation', 'missing-space': 'Punctuation',
   'unbalanced': 'Punctuation', 'capital-start': 'Capitals', 'capital-sentence': 'Capitals', 'lowercase-i': 'Capitals',
-  'long-sentence': 'Style', 'spelling': 'Spelling', 'proofread': 'Proofread',
+  'long-sentence': 'Style', 'mixed-script': 'Typo', 'spelling': 'Spelling', 'proofread': 'Proofread',
 };
 
 const SOURCE_META: Record<Source, { name: string; label: string }> = {
@@ -119,8 +119,9 @@ export default function CommentsPanel() {
     let spelling: Notes = [];
     let spellNote = '';
     // The dictionary is English, so romanised Hindi and other languages would all be flagged.
-    if (script.language !== 'english') {
-      spellNote = ' Dictionary spelling runs on English scripts only.';
+    const english = script.language === 'english';
+    if (!english) {
+      spellNote = ' Dictionary spelling is for English scripts only.';
     } else try {
       const found = checkSpelling(blocks, await loadDictionary(), useDictionaryStore.getState().words);
       spelling = found.map(f => ({
@@ -132,7 +133,8 @@ export default function CommentsPanel() {
     const findings = [...rules, ...spelling];
     replaceRun(script.id, 'grammar', findings, c => c.category !== 'proofread');
     setFilter('grammar');
-    const offline = prefix + (findings.length ? `${plural(findings.length, 'issue')} found in the script.` : 'No typos found in the script.') + spellNote;
+    const clean = english ? 'No typos found in the script.' : 'No spacing or punctuation slips found.';
+    const offline = prefix + (findings.length ? `${plural(findings.length, 'issue')} found in the script.` : clean) + spellNote;
 
     // 2. AI proofread of the current scene, if the local server is running.
     setStatus({ kind: 'busy', text: `${offline} Proofreading this scene with AI…` });
