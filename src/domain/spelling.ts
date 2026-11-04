@@ -2,8 +2,10 @@
 //
 // Framework-free: the dictionary is passed in (see services/spellchecker.ts),
 // so tests can use a tiny fake. Built to stay quiet on Indian scripts:
-// character names, common Hinglish words, ALL-CAPS words, capitalised words
-// mid-sentence (names, places) and the writer's own dictionary are skipped.
+// character names, common Hinglish words, ALL-CAPS words in prose, capitalised
+// words mid-sentence (names, places) and the writer's own dictionary are skipped.
+// Scene headings are checked too: they are all capitals by convention, so there
+// the location words are read in capitals, without INT./EXT. or the time of day.
 // Like the other checks, it flags a word and may name the likely spelling,
 // but never changes the text.
 
@@ -60,6 +62,14 @@ export function namesIn(blocks: SpellInput[]): Set<string> {
 }
 
 const WORD = /[A-Za-z]+(?:'[A-Za-z]+)*/g;
+
+const HEADING_PREFIX = /^\s*(INT\.?\s*\/\s*EXT|EXT\.?\s*\/\s*INT|I\/E|INT|EXT|EST)\.?/i;
+const HEADING_TIME = /[\s\-–—]+(DAY|NIGHT|MORNING|EVENING|AFTERNOON|DAWN|DUSK|CONTINUOUS|LATER|MOMENTS LATER|SAME|SUNSET|SUNRISE|NOON|MIDNIGHT)\s*\)?\s*$/i;
+
+/** The location part of a scene heading: "INT. CHAWL ROOFTOP - NIGHT" gives " CHAWL ROOFTOP". */
+export function headingLocation(text: string): string {
+  return text.replace(HEADING_PREFIX, (m) => ' '.repeat(m.length)).replace(HEADING_TIME, '');
+}
 
 /** Edit distance where swapping two neighbouring letters counts as one slip. */
 export function typoDistance(a: string, b: string): number {
@@ -133,24 +143,34 @@ export function checkSpelling(blocks: SpellInput[], dict: Dictionary, personal: 
   const out: SpellingFinding[] = [];
 
   for (const b of blocks) {
-    if (!CHECKED.includes(b.type)) continue;
-    const text = b.text.replace(/[’‘]/g, "'");
+    const heading = b.type === 'scene_heading';
+    if (!heading && !CHECKED.includes(b.type)) continue;
+    const text = (heading ? headingLocation(b.text) : b.text).replace(/[’‘]/g, "'");
     const seen = new Set<string>();
 
     for (const m of text.matchAll(WORD)) {
       const word = m[0];
       const lower = word.toLowerCase();
-      if (word.length < 2 || seen.has(lower) || skip.has(lower)) continue;
-      if (word === word.toUpperCase()) continue;   // ALL CAPS: sounds, acronyms, emphasis
-      // A capital mid-sentence is almost always a name or a place, and so is
-      // the same word at the start of another sentence.
-      if (/^[A-Z]/.test(word) && (!isSentenceStart(text, m.index) || proper.has(lower))) continue;
+      const base = lower.replace(/'s$/, '');   // "MEERA'S" is Meera's
+      if (word.length < 2 || seen.has(lower) || skip.has(base) || proper.has(base)) continue;
+      if (!heading) {
+        if (word === word.toUpperCase()) continue;   // ALL CAPS in prose: sounds, acronyms, emphasis
+        // A capital mid-sentence is almost always a name or a place.
+        if (/^[A-Z]/.test(word) && !isSentenceStart(text, m.index)) continue;
+      }
       if (known(word) || known(word.replace(/'s$/i, ''))) continue;
 
-      seen.add(lower);
       if (!suggestions.has(lower)) suggestions.set(lower, bestSuggestion(lower, dict.suggest(lower)));
       let suggestion = suggestions.get(lower);
-      if (suggestion && /^[A-Z]/.test(word)) suggestion = suggestion[0].toUpperCase() + suggestion.slice(1);
+      // A capitalised word at the start of a sentence, or any word in a heading, may be
+      // a name or a place ("Meera", "BANDRA"). Flag it only when it is one slip away
+      // from a real word ("Teh", "WHEER"), not when the nearest word is a stretch.
+      const nameLike = heading || /^[A-Z]/.test(word);
+      if (nameLike && (!suggestion || typoDistance(lower, suggestion.toLowerCase()) > 1)) continue;
+
+      seen.add(lower);
+      if (suggestion && word.length > 1 && word === word.toUpperCase()) suggestion = suggestion.toUpperCase();
+      else if (suggestion && /^[A-Z]/.test(word)) suggestion = suggestion[0].toUpperCase() + suggestion.slice(1);
       out.push({
         blockId: b.id, word, suggestion,
         message: suggestion ? `"${word}" may be misspelled. Did you mean "${suggestion}"?` : `"${word}" may be misspelled.`,

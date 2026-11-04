@@ -13,7 +13,7 @@ export interface CheckInput {
 
 export interface CheckFinding {
   blockId: string;
-  rule: 'heading-prefix' | 'heading-time' | 'orphan-dialogue' | 'orphan-parenthetical'
+  rule: 'heading-prefix' | 'heading-time' | 'heading-location' | 'orphan-dialogue' | 'orphan-parenthetical'
       | 'empty-scene' | 'name-variant' | 'empty-cue';
   message: string;
 }
@@ -49,6 +49,10 @@ export function checkScript(blocks: CheckInput[]): CheckFinding[] {
       // English-style headings get the standard checks; Indian-language headings are free-form.
       if (isLatin(text) && !PREFIX_RE.test(text)) {
         out.push({ blockId: b.id, rule: 'heading-prefix', message: 'Scene heading does not start with INT. or EXT. - a breakdown cannot tell if this is interior or exterior.' });
+      }
+      const location = text.replace(/^(INT\.?\/EXT|EXT\.?\/INT|I\/E|INT|EXT|EST)\.?/i, '').replace(TIME_RE, '');
+      if (PREFIX_RE.test(text) && !/[\p{L}\p{N}]/u.test(location)) {
+        out.push({ blockId: b.id, rule: 'heading-location', message: 'Scene heading has no location - where does this scene take place?' });
       }
       if (isLatin(text) && !TIME_RE.test(text)) {
         out.push({ blockId: b.id, rule: 'heading-time', message: 'Scene heading has no time of day (DAY, NIGHT…). Scheduling needs it.' });

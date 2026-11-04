@@ -1429,3 +1429,4 @@ select.ftoolbar__font {
 .npanel__promise svg { flex: none; }
 
 [data-template="desk"] .npanel__empty { padding: 8px 16px 16px; }
+.ncheck__item--all { --tone: var(--accent); }

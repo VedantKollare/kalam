@@ -29,10 +29,12 @@ describe('checkSpelling (real English dictionary)', () => {
       action('He waves at Rohan.'),
     ];
     const words = checkSpelling(blocks, dict).map(f => f.word);
-    expect(words).toEqual(['Jhakaas']);   // slang: "Add to dictionary" covers it
+    // "Jhakaas" starts a sentence and is nothing like an English word, so it is
+    // treated like a name rather than flagged.
+    expect(words).toEqual([]);
   });
 
-  it('respects the personal dictionary and skips headings and transitions', async () => {
+  it('respects the personal dictionary and skips transitions', async () => {
     const dict = await loadDictionary();
     const blocks: SpellInput[] = [
       { id: 'h', type: 'scene_heading', text: 'INT. chawl - NIGHT' },
@@ -40,6 +42,32 @@ describe('checkSpelling (real English dictionary)', () => {
       { id: 'd', type: 'dialogue', text: 'jhakaas, boss.' },
     ];
     expect(checkSpelling(blocks, dict, ['Jhakaas'])).toEqual([]);
+  });
+});
+
+describe('checkSpelling in scene headings', () => {
+  it('reads the location in capitals and suggests in capitals', async () => {
+    const dict = await loadDictionary();
+    const found = checkSpelling([{ id: 'h', type: 'scene_heading', text: 'INT. - WHEER ARE WE?' }], dict);
+    expect(found.map(f => [f.word, f.suggestion])).toEqual([['WHEER', 'WHERE']]);
+  });
+
+  it('does not flag a new name at the start of a sentence, but still catches "Teh"', async () => {
+    const dict = await loadDictionary();
+    const words = checkSpelling([action('Meera sits by the windw. Teh rain stops.')], dict).map(f => f.word);
+    expect(words).toEqual(['windw', 'Teh']);
+  });
+
+  it('ignores INT./EXT., the time of day, Hinglish places and names from the script', async () => {
+    const dict = await loadDictionary();
+    const blocks: SpellInput[] = [
+      { id: 'h1', type: 'scene_heading', text: 'INT./EXT. CHAWL ROOFTOP - CONTINUOUS' },
+      { id: 'h2', type: 'scene_heading', text: "EXT. MEERA'S HOUSE - NIGHT" },
+      { id: 'c', type: 'character', text: 'MEERA' },
+      action('They drive to Bandra.'),
+      { id: 'h3', type: 'scene_heading', text: 'EXT. BANDRA STATION - DAWN' },
+    ];
+    expect(checkSpelling(blocks, dict)).toEqual([]);
   });
 });
 

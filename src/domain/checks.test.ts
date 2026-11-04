@@ -19,6 +19,11 @@ describe('script checks', () => {
     expect(rules([b('scene_heading', 'KITCHEN'), b('action', 'x')])).toEqual(['heading-prefix', 'heading-time']);
   });
 
+  it('flags a heading with no location', () => {
+    expect(rules([b('scene_heading', 'INT. - DAY'), b('action', 'x')])).toEqual(['heading-location']);
+    expect(rules([b('scene_heading', 'EXT. ROOFTOP - DAY'), b('action', 'x')])).toEqual([]);
+  });
+
   it('leaves Indian-language headings alone', () => {
     expect(rules([b('scene_heading', 'अंदर. रसोई - रात'), b('action', 'x')])).toEqual([]);
   });

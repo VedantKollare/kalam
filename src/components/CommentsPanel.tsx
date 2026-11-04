@@ -33,7 +33,7 @@ type Status = { kind: 'info' | 'ok' | 'error' | 'busy'; text: ReactNode };
 /** Short human labels for categories / rule ids shown on each card. */
 const TAGS: Record<string, string> = {
   // format checks
-  'heading-prefix': 'Scene heading', 'heading-time': 'Scene heading', 'empty-scene': 'Empty scene',
+  'heading-prefix': 'Scene heading', 'heading-time': 'Scene heading', 'heading-location': 'Scene heading', 'empty-scene': 'Empty scene',
   'orphan-dialogue': 'Dialogue', 'orphan-parenthetical': 'Dialogue', 'name-variant': 'Character name', 'empty-cue': 'Character name',
   // grammar checks
   'repeated-word': 'Typo', 'double-space': 'Spacing', 'space-before-punct': 'Punctuation', 'missing-space': 'Punctuation',
@@ -94,7 +94,7 @@ export default function CommentsPanel() {
   const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
   const serverHint = <>Start it with <code>uvicorn app.main:app --port 8000</code> in <code>backend/</code>.</>;
 
-  const runFormat = () => {
+  const runFormat = (): number => {
     const findings = checkScript(plainBlocks());
     replaceRun(script.id, 'check', findings.map(f => ({
       scriptId: script.id, blockId: f.blockId, quote: quoteOf(f.blockId), text: f.message, source: 'check', category: f.rule,
@@ -103,9 +103,10 @@ export default function CommentsPanel() {
     setStatus(findings.length
       ? { kind: 'info', text: `${plural(findings.length, 'formatting issue')} found.` }
       : { kind: 'ok', text: 'Formatting looks right.' });
+    return findings.length;
   };
 
-  const runGrammar = async () => {
+  const runGrammar = async (prefix = '') => {
     setBusy('grammar');
     setStatus({ kind: 'busy', text: 'Checking spelling and grammar…' });
 
@@ -131,7 +132,7 @@ export default function CommentsPanel() {
     const findings = [...rules, ...spelling];
     replaceRun(script.id, 'grammar', findings, c => c.category !== 'proofread');
     setFilter('grammar');
-    const offline = (findings.length ? `${plural(findings.length, 'issue')} found in the script.` : 'No typos found in the script.') + spellNote;
+    const offline = prefix + (findings.length ? `${plural(findings.length, 'issue')} found in the script.` : 'No typos found in the script.') + spellNote;
 
     // 2. AI proofread of the current scene, if the local server is running.
     setStatus({ kind: 'busy', text: `${offline} Proofreading this scene with AI…` });
@@ -149,6 +150,13 @@ export default function CommentsPanel() {
     } finally {
       setBusy(null);
     }
+  };
+
+  /** Formatting and spelling in one pass, the quick read-through before sharing a draft. */
+  const runAll = async () => {
+    const n = runFormat();
+    await runGrammar(n ? `${plural(n, 'formatting issue')}. ` : 'Formatting looks right. ');
+    setFilter('all');
   };
 
   const runAI = async () => {
@@ -174,16 +182,18 @@ export default function CommentsPanel() {
   };
 
   // Read-throughs, in the order a writer would usually do them.
-  const tools: { id: Source; label: string; desc: string; scope: string; run: () => void; busy: boolean; title: string }[] = [
-    { id: 'grammar', label: 'Spelling & grammar', desc: 'Typos and spacing', scope: 'Whole script', run: runGrammar, busy: busy === 'grammar',
+  const tools: { id: Source | 'all'; label: string; desc: string; scope: string; run: () => void; busy: boolean; title: string }[] = [
+    { id: 'all', label: 'Everything', desc: 'Spelling, grammar and formatting', scope: 'Whole script', run: runAll, busy: false,
+      title: 'Runs the spelling, grammar and formatting checks together' },
+    { id: 'grammar', label: 'Spelling & grammar', desc: 'Typos and spacing', scope: 'Whole script', run: () => { runGrammar(); }, busy: busy === 'grammar',
       title: 'Spelling, spacing and capitals across the script, plus a closer proofread of this scene when the local AI server is running. Dialogue keeps its voice.' },
-    { id: 'check', label: 'Formatting', desc: 'Headings and names', scope: 'Whole script', run: runFormat, busy: false,
+    { id: 'check', label: 'Formatting', desc: 'Headings and names', scope: 'Whole script', run: () => { runFormat(); }, busy: false,
       title: 'Scene headings, dialogue structure and character names' },
     { id: 'ai', label: 'Story notes', desc: 'Pacing and character', scope: 'This scene', run: runAI, busy: busy === 'ai',
       title: 'Notes on story, character and pacing for the scene you are in, from the local AI server. It never edits your script.' },
   ];
 
-  const toolIcon: Record<string, ReactNode> = { grammar: Icon.grammar, check: Icon.format, ai: Icon.spark };
+  const toolIcon: Record<string, ReactNode> = { all: Icon.check, grammar: Icon.grammar, check: Icon.format, ai: Icon.spark };
 
   const filters: Filter[] = ['all', 'user', 'ai', 'grammar', 'check'];
 
