@@ -1173,22 +1173,23 @@ select.ftoolbar__font {
 }
 [data-template="desk"] .npanel { --n-ai:#B7A3E0; --n-grammar:#8FB0E0; --n-check:#8CC4A0; --n-user: var(--accent); }
 [data-template="desk"][data-mode="light"] {
-  --bg-root:#EFE9DD; --bg-header:#EFE9DD; --bg-panel:#EFE9DD; --bg-canvas:#EFE9DD; --bg-card:#FBF7EE;
-  --bg-input:#FFFDF8; --bg-hover:rgba(60,40,10,.06);
-  --line:#DCD3C3; --line-2:#E6DFD1;
-  --text:#1F1B16; --text-2:#5A5245; --text-3:#8A7F6E;
-  --accent:#2C4A78; --accent-2:#1C3256;
-  --accent-grad: linear-gradient(#2C4A78, #2C4A78);
-  --accent-soft: rgba(44,74,120,.10);
-  --on-accent:#FFFDF8;
-  --page-bg:#FFFDF8; --sheet-bg:#FFFDF8; --canvas-bg:#EFE9DD; --page-num:#8A7F6E;
+  /* Linen: soft warm beige with a quiet brown accent (chosen 2026-11-04) */
+  --bg-root:#F3EEE6; --bg-header:#F3EEE6; --bg-panel:#F3EEE6; --bg-canvas:#F3EEE6; --bg-card:#FAF7F1;
+  --bg-input:#FFFDF9; --bg-hover:rgba(60,40,10,.05);
+  --line:#E2DACD; --line-2:#EAE4DA;
+  --text:#2E2A25; --text-2:#6B6358; --text-3:#9A9084;
+  --accent:#7A6248; --accent-2:#634F39;
+  --accent-grad: linear-gradient(#7A6248, #7A6248);
+  --accent-soft: rgba(122,98,72,.12);
+  --on-accent:#FFFDF9;
+  --page-bg:#FFFDF9; --sheet-bg:#FFFDF9; --canvas-bg:#F3EEE6; --page-num:#9A9084;
   --sheet-border: transparent;
   --sheet-shadow: 0 1px 2px rgba(60,40,10,.08), 0 24px 48px -28px rgba(60,40,10,.38);
   --pg-shadow: var(--sheet-shadow);
-  --c-scene:#1F1B16; --c-action:#1F1B16; --c-char:#1F1B16; --c-paren:#5A5245; --c-dia:#1F1B16;
-  --c-trans:#1F1B16; --c-song:#2C4A78; --c-interval:#7A3B2E; --c-byline:#5A5245;
+  --c-scene:#2E2A25; --c-action:#2E2A25; --c-char:#2E2A25; --c-paren:#6B6358; --c-dia:#2E2A25;
+  --c-trans:#2E2A25; --c-song:#7A6248; --c-interval:#8A4A36; --c-byline:#6B6358;
 }
-[data-template="desk"][data-mode="light"] .npanel { --n-ai:#6B4F8A; --n-grammar:#2C4A78; --n-check:#3F6B4E; }
+[data-template="desk"][data-mode="light"] .npanel { --n-ai:#7A5E78; --n-grammar:#56677A; --n-check:#66775E; }
 
 /* Kalam logo tile (KalamMark): a nib on ink */
 .kmark {
