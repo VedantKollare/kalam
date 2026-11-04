@@ -56,6 +56,8 @@ const Icon = {
   book: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M12 7v6M9 10h6"/></svg>,
   arrow: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>,
   x: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>,
+  lock: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>,
+  note: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 12h6M9 16h4"/></svg>,
   chevron: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>,
 };
 
@@ -168,14 +170,16 @@ export default function CommentsPanel() {
   };
 
   // Read-throughs, in the order a writer would usually do them.
-  const tools: { id: string; label: string; sub: string; run: () => void; busy: boolean; title: string }[] = [
-    { id: 'grammar', label: 'Spelling & grammar', sub: 'Whole script', run: runGrammar, busy: busy === 'grammar',
+  const tools: { id: Source; label: string; desc: string; scope: string; run: () => void; busy: boolean; title: string }[] = [
+    { id: 'grammar', label: 'Spelling & grammar', desc: 'Typos and spacing', scope: 'Whole script', run: runGrammar, busy: busy === 'grammar',
       title: 'Spelling, spacing and capitals across the script, plus a closer proofread of this scene when the local AI server is running. Dialogue keeps its voice.' },
-    { id: 'format', label: 'Formatting', sub: 'Whole script', run: runFormat, busy: false,
+    { id: 'check', label: 'Formatting', desc: 'Headings and names', scope: 'Whole script', run: runFormat, busy: false,
       title: 'Scene headings, dialogue structure and character names' },
-    { id: 'ai', label: 'Story notes', sub: 'This scene', run: runAI, busy: busy === 'ai',
+    { id: 'ai', label: 'Story notes', desc: 'Pacing and character', scope: 'This scene', run: runAI, busy: busy === 'ai',
       title: 'Notes on story, character and pacing for the scene you are in, from the local AI server. It never edits your script.' },
   ];
+
+  const toolIcon: Record<string, ReactNode> = { grammar: Icon.grammar, check: Icon.format, ai: Icon.spark };
 
   const filters: Filter[] = ['all', 'user', 'ai', 'grammar', 'check'];
 
@@ -219,14 +223,17 @@ export default function CommentsPanel() {
         <span>Notes</span>
         {openCount() > 0 && <span className="npanel__count">{openCount()}</span>}
       </div>
+      <p className="npanel__promise">{Icon.lock} Notes never change your script.</p>
 
       <div className="nreads" role="group" aria-label="Read through the script">
         <span className="nreads__label">Read through for</span>
         {tools.map(t => (
-          <button key={t.id} className={`nread ${t.busy ? 'is-busy' : ''}`}
+          <button key={t.id} className={`nread nread--${t.id} ${t.busy ? 'is-busy' : ''}`}
             onClick={t.run} disabled={busy !== null} title={t.title}>
+            <span className="nread__ic" aria-hidden="true">{toolIcon[t.id]}</span>
             <span className="nread__label">{t.label}</span>
-            <span className="nread__sub">{t.sub}</span>
+            <span className="nread__sub">{t.desc}</span>
+            <span className="nread__scope">{t.scope}</span>
             <span className="nread__go" aria-hidden="true">{t.busy ? <span className="nspin" /> : Icon.arrow}</span>
           </button>
         ))}
@@ -261,9 +268,9 @@ export default function CommentsPanel() {
           <div className="npanel__empty">
             {all.length === 0 ? (
               <>
+                <span className="npanel__empty-ic" aria-hidden="true">{Icon.note}</span>
                 <div className="npanel__empty-title">No notes yet</div>
-                Select any line to leave yourself a note, or read the script through for one
-                of the checks above. Notes never change your script.
+                <p>Select a line to leave yourself a note, or run one of the read-throughs above.</p>
               </>
             ) : (
               <>

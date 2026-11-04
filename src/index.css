@@ -1389,3 +1389,32 @@ select.ftoolbar__font {
 [data-template="desk"] .ndone { font: 500 12px var(--font-ui); text-transform: none; letter-spacing: 0; color: var(--text-2); }
 [data-template="desk"] .npanel__empty { font: 400 13px/1.55 var(--font-ui); color: var(--text-2); padding: 28px 18px; }
 [data-template="desk"] .npanel__empty-title { font: 600 14px var(--font-ui); color: var(--text); margin-bottom: 6px; }
+
+/* Notes panel polish: icon per read-through, scope chip, promise line, empty state */
+.npanel__promise { display: flex; align-items: center; gap: 6px; margin: -4px 16px 12px; font: 400 12px/1.4 var(--font-ui); color: var(--text-3); }
+.npanel__promise svg { flex: none; }
+.nreads { box-shadow: 0 1px 2px rgba(60,40,10,.05); container-type: inline-size; }
+@container (max-width: 300px) { .nread__scope { display: none; } }
+.nread { grid-template-columns: auto 1fr auto auto; column-gap: 12px; padding: 12px 14px; }
+.nread__ic {
+  grid-row: 1 / span 2; grid-column: 1; width: 32px; height: 32px; border-radius: 8px;
+  display: grid; place-items: center; color: var(--tone); background: color-mix(in srgb, var(--tone) 12%, transparent);
+}
+.nread--grammar { --tone: var(--n-grammar); }
+.nread--check { --tone: var(--n-check); }
+.nread--ai { --tone: var(--n-ai); }
+.nread__label { grid-column: 2; font-weight: 600; }
+.nread__sub { grid-column: 2; }
+.nread__scope {
+  grid-row: 1 / span 2; grid-column: 3; padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px;
+  font: 500 11px var(--font-ui); color: var(--text-2); background: var(--bg-root);
+}
+.nread__go { grid-column: 4; transition: transform .15s; }
+.nread:hover:not(:disabled) .nread__go { transform: translateX(2px); }
+.nread:hover:not(:disabled) .nread__ic { background: color-mix(in srgb, var(--tone) 20%, transparent); }
+.npanel__empty { display: flex; flex-direction: column; align-items: center; }
+.npanel__empty p { margin: 0; max-width: 240px; }
+.npanel__empty-ic {
+  width: 52px; height: 52px; margin-bottom: 12px; border-radius: 14px; display: grid; place-items: center;
+  color: var(--accent); background: var(--accent-soft); border: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent);
+}
