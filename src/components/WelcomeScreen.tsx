@@ -1,26 +1,10 @@
-import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useScriptStore } from '../store/scriptStore';
 import type { Script } from '../domain/screenplay';
 import { paginateScript } from '../utils/layout';
 import AuthControl from './AuthControl';
 import KalamMark from './KalamMark';
 import './WelcomeScreen.css';
-
-const S = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
-
-/** What Kalam does differently, in the order a writer meets it. */
-const FEATS: { icon: ReactNode; title: string; text: string }[] = [
-  { title: 'Industry pages', text: '12pt Courier on real A4 or Letter pages.',
-    icon: <svg viewBox="0 0 24 24" {...S}><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg> },
-  { title: 'Your language', text: 'Hindi, Tamil, Telugu, Malayalam or Hinglish.',
-    icon: <svg viewBox="0 0 24 24" {...S}><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/></svg> },
-  { title: 'Songs and the interval', text: 'First-class elements, not workarounds.',
-    icon: <svg viewBox="0 0 24 24" {...S}><path d="M9 17V5l11-2v12"/><circle cx="6" cy="17" r="3"/><circle cx="17" cy="15" r="3"/></svg> },
-  { title: 'Notes, never rewrites', text: 'Your words stay yours.',
-    icon: <svg viewBox="0 0 24 24" {...S}><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg> },
-  { title: 'Hand it over', text: 'PDF, Final Draft, Fountain and Word.',
-    icon: <svg viewBox="0 0 24 24" {...S}><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg> },
-];
 
 const LANG_LABEL: Record<string, string> = {
   english: 'English', hinglish: 'Hinglish', hindi: 'हिन्दी',
@@ -112,6 +96,10 @@ export default function WelcomeScreen() {
               <span className="kdocs__count">{scripts.length}</span>
             </div>
             <div className="kdocs__tools">
+              <button className="btn-accent kdocs__new" onClick={createScript}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                New script
+              </button>
               <label className="kdocs__search">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
                 <input type="search" placeholder="Search scripts" value={query} onChange={e => setQuery(e.target.value)} aria-label="Search scripts" />
@@ -140,38 +128,13 @@ export default function WelcomeScreen() {
           ) : (
             <div className="kdocs__empty">
               <p className="kdocs__empty-title">{scripts.length ? 'No scripts match your search' : 'No scripts yet'}</p>
-              <p>{scripts.length ? 'Try a different title or writer.' : 'Start a new script, or open the sample scene to see how Kalam lays out a page.'}</p>
+              <p>{scripts.length ? 'Try a different title or writer.' : 'Start a new script, or open a short sample scene to see how Kalam lays out a page.'}</p>
+              {!scripts.length && <button className="kdocs__sample" onClick={createSample}>Open the sample scene</button>}
             </div>
           )}
         </section>
+        <p className="khome-foot">Scripts are saved in this browser. Export a PDF or Final Draft file to keep a copy.</p>
 
-        <aside className="kside" aria-label="Start and about">
-          <button className="btn-accent kside__new" onClick={createScript}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
-            New script
-          </button>
-          <button className="kside__sample" onClick={createSample}>
-            <span className="kside__sample-title">Try a sample scene</span>
-            <span className="kside__sample-text">A short Hinglish scene with a song and the interval.</span>
-          </button>
-
-          <div className="kside__feats">
-            <h2>Built for cinema</h2>
-            <ul>
-              {FEATS.map(f => (
-                <li key={f.title}>
-                  <span className="kside__ic" aria-hidden="true">{f.icon}</span>
-                  <span>
-                    <span className="kside__ft">{f.title}</span>
-                    <span className="kside__fx">{f.text}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <p className="kside__foot">Scripts are saved in this browser. Export a PDF or Final Draft file to keep a copy.</p>
-        </aside>
       </div>
     </div>
   );

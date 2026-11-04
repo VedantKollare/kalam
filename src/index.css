@@ -1390,31 +1390,41 @@ select.ftoolbar__font {
 [data-template="desk"] .npanel__empty { font: 400 13px/1.55 var(--font-ui); color: var(--text-2); padding: 28px 18px; }
 [data-template="desk"] .npanel__empty-title { font: 600 14px var(--font-ui); color: var(--text); margin-bottom: 6px; }
 
-/* Notes panel polish: icon per read-through, scope chip, promise line, empty state */
-.npanel__promise { display: flex; align-items: center; gap: 6px; margin: -4px 16px 12px; font: 400 12px/1.4 var(--font-ui); color: var(--text-3); }
+/* Notes panel: notes first, checks tucked into one Check menu in the header */
+.npanel__head { display: flex; align-items: center; gap: 8px; }
+.npanel__spacer { flex: 1; }
+.ncheck {
+  display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px 0 9px;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--bg-card); color: var(--text);
+  font: 600 13px var(--font-ui); cursor: pointer; transition: border-color .15s, background .15s;
+}
+.ncheck:hover, .ncheck.on { border-color: var(--accent); }
+.ncheck svg:first-child { color: var(--accent); }
+.ncheck:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ncheck .nspin { --tone: var(--accent); }
+.ncheck__label { padding: 6px 10px 4px; font: 600 11px var(--font-ui); letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
+.ncheck__item { align-items: center; }
+.ncheck__item:disabled { opacity: .5; cursor: default; }
+.ncheck__ic { flex: none; width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; color: var(--tone); background: color-mix(in srgb, var(--tone) 12%, transparent); }
+.ncheck__item--grammar { --tone: var(--n-grammar); }
+.ncheck__item--check { --tone: var(--n-check); }
+.ncheck__item--ai { --tone: var(--n-ai); }
+.ncheck__text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ncheck__name { font: 600 13px/1.3 var(--font-ui); }
+.ncheck__desc { font: 400 12px/1.3 var(--font-ui); color: var(--text-2); }
+
+.npanel { display: flex; flex-direction: column; }
+.npanel__empty { text-align: left; padding: 8px 16px 16px; }
+.npanel__steps { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.npanel__steps li { display: flex; gap: 10px; align-items: flex-start; }
+.npanel__steps span {
+  flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
+  font: 600 11px var(--font-ui); color: var(--accent); background: var(--accent-soft);
+}
+.npanel__steps p { margin: 0; }
+.npanel__steps b { color: var(--text); font-weight: 600; }
+.npanel .hmenu { min-width: 300px; }
+.npanel__promise { flex: none; display: flex; align-items: center; gap: 6px; margin: 0; padding: 10px 16px; border-top: 1px solid var(--line); font: 400 12px/1.4 var(--font-ui); color: var(--text-3); }
 .npanel__promise svg { flex: none; }
-.nreads { box-shadow: 0 1px 2px rgba(60,40,10,.05); container-type: inline-size; }
-@container (max-width: 300px) { .nread__scope { display: none; } }
-.nread { grid-template-columns: auto 1fr auto auto; column-gap: 12px; padding: 12px 14px; }
-.nread__ic {
-  grid-row: 1 / span 2; grid-column: 1; width: 32px; height: 32px; border-radius: 8px;
-  display: grid; place-items: center; color: var(--tone); background: color-mix(in srgb, var(--tone) 12%, transparent);
-}
-.nread--grammar { --tone: var(--n-grammar); }
-.nread--check { --tone: var(--n-check); }
-.nread--ai { --tone: var(--n-ai); }
-.nread__label { grid-column: 2; font-weight: 600; }
-.nread__sub { grid-column: 2; }
-.nread__scope {
-  grid-row: 1 / span 2; grid-column: 3; padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px;
-  font: 500 11px var(--font-ui); color: var(--text-2); background: var(--bg-root);
-}
-.nread__go { grid-column: 4; transition: transform .15s; }
-.nread:hover:not(:disabled) .nread__go { transform: translateX(2px); }
-.nread:hover:not(:disabled) .nread__ic { background: color-mix(in srgb, var(--tone) 20%, transparent); }
-.npanel__empty { display: flex; flex-direction: column; align-items: center; }
-.npanel__empty p { margin: 0; max-width: 240px; }
-.npanel__empty-ic {
-  width: 52px; height: 52px; margin-bottom: 12px; border-radius: 14px; display: grid; place-items: center;
-  color: var(--accent); background: var(--accent-soft); border: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent);
-}
+
+[data-template="desk"] .npanel__empty { padding: 8px 16px 16px; }

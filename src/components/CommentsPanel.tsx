@@ -10,6 +10,7 @@ import { useDictionaryStore } from '../store/dictionaryStore';
 import { requestSceneNotes, sceneBlocks } from '../services/aiNotes';
 import { ApiUnavailableError } from '../lib/api/client';
 import { plain } from '../utils/text';
+import Menu from './Menu';
 
 function timeAgo(ts: number): string {
   const s = Math.floor((Date.now() - ts) / 1000);
@@ -57,7 +58,7 @@ const Icon = {
   arrow: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>,
   x: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>,
   lock: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>,
-  note: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 12h6M9 16h4"/></svg>,
+  chevronDown: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>,
   chevron: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>,
 };
 
@@ -116,7 +117,10 @@ export default function CommentsPanel() {
     }));
     let spelling: Notes = [];
     let spellNote = '';
-    try {
+    // The dictionary is English, so romanised Hindi and other languages would all be flagged.
+    if (script.language !== 'english') {
+      spellNote = ' Dictionary spelling runs on English scripts only.';
+    } else try {
       const found = checkSpelling(blocks, await loadDictionary(), useDictionaryStore.getState().words);
       spelling = found.map(f => ({
         scriptId: script.id, blockId: f.blockId, quote: quoteOf(f.blockId), text: f.message, source: 'grammar' as const, category: 'spelling', word: f.word,
@@ -220,23 +224,25 @@ export default function CommentsPanel() {
   return (
     <aside className="cpanel npanel">
       <div className="npanel__head">
-        <span>Notes</span>
+        <span className="npanel__title">Notes</span>
         {openCount() > 0 && <span className="npanel__count">{openCount()}</span>}
-      </div>
-      <p className="npanel__promise">{Icon.lock} Notes never change your script.</p>
-
-      <div className="nreads" role="group" aria-label="Read through the script">
-        <span className="nreads__label">Read through for</span>
-        {tools.map(t => (
-          <button key={t.id} className={`nread nread--${t.id} ${t.busy ? 'is-busy' : ''}`}
-            onClick={t.run} disabled={busy !== null} title={t.title}>
-            <span className="nread__ic" aria-hidden="true">{toolIcon[t.id]}</span>
-            <span className="nread__label">{t.label}</span>
-            <span className="nread__sub">{t.desc}</span>
-            <span className="nread__scope">{t.scope}</span>
-            <span className="nread__go" aria-hidden="true">{t.busy ? <span className="nspin" /> : Icon.arrow}</span>
-          </button>
-        ))}
+        <span className="npanel__spacer" />
+        <Menu title="Check the script" className="ncheck" label={<>{busy ? <span className="nspin" /> : Icon.spark} Check {Icon.chevronDown}</>}>
+          {close => <>
+            <div className="ncheck__label">Read the script for</div>
+            {tools.map(t => (
+              <button key={t.id} className={`hmenu__item ncheck__item ncheck__item--${t.id}`} role="menuitem" title={t.title}
+                disabled={busy !== null} onClick={() => { close(); t.run(); }}>
+                <span className="ncheck__ic" aria-hidden="true">{toolIcon[t.id]}</span>
+                <span className="ncheck__text">
+                  <span className="ncheck__name">{t.label}</span>
+                  <span className="ncheck__desc">{t.desc}</span>
+                </span>
+                <span className="hmenu__ext">{t.scope}</span>
+              </button>
+            ))}
+          </>}
+        </Menu>
       </div>
 
       {status && (
@@ -249,7 +255,7 @@ export default function CommentsPanel() {
         </div>
       )}
 
-      {new Set(all.map(sourceOf)).size > 1 && (
+      {all.length > 0 && (
         <div className="nfilters" role="tablist">
           {filters.filter(f => f === 'all' || all.some(c => sourceOf(c) === f)).map(f => {
             const n = f === 'all' ? openCount() : openCount(f);
@@ -268,9 +274,11 @@ export default function CommentsPanel() {
           <div className="npanel__empty">
             {all.length === 0 ? (
               <>
-                <span className="npanel__empty-ic" aria-hidden="true">{Icon.note}</span>
                 <div className="npanel__empty-title">No notes yet</div>
-                <p>Select a line to leave yourself a note, or run one of the read-throughs above.</p>
+                <ul className="npanel__steps">
+                  <li><span>1</span><p>Select a line to leave yourself a note.</p></li>
+                  <li><span>2</span><p>Use <b>Check</b> above for spelling, formatting or story notes.</p></li>
+                </ul>
               </>
             ) : (
               <>
@@ -291,6 +299,7 @@ export default function CommentsPanel() {
           </>
         )}
       </div>
+      <p className="npanel__promise">{Icon.lock} Notes never change your script.</p>
     </aside>
   );
 }
