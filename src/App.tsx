@@ -49,7 +49,7 @@ export default function App() {
 
   // Keep the browser tab title in sync with the app.
   useEffect(() => {
-    document.title = 'Kalam | Screenplays for Indian cinema';
+    document.title = 'Kalam | Screenplays for Cinema';
   }, []);
 
   // Print (button or Ctrl+P) renders the paginated pages just in time, so the

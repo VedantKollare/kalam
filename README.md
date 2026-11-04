@@ -1,4 +1,4 @@
-# Kalam: screenplays for Indian cinema
+# Kalam: screenplays for cinema
 
 [![CI](https://github.com/VedantKollare/kalam/actions/workflows/ci.yml/badge.svg)](https://github.com/VedantKollare/kalam/actions/workflows/ci.yml)
 
