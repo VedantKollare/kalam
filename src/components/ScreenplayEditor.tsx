@@ -193,6 +193,19 @@ export default function ScreenplayEditor() {
         return;
       }
     }
+    // An empty dialogue line becomes a parenthetical on Tab or on typing "(",
+    // the way screenwriters expect from Final Draft.
+    const emptyLine = !e.currentTarget.textContent;
+    const afterCue = () => {
+      const s = getActiveScript();
+      const idx = s ? s.blocks.findIndex(b => b.id === id) : -1;
+      return idx > 0 && s!.blocks[idx - 1].type === 'character';
+    };
+    if (type === 'dialogue' && emptyLine && ((e.key === 'Tab' && !e.shiftKey) || e.key === '(') && afterCue()) {
+      if (e.key === 'Tab') e.preventDefault();
+      changeBlockType(id, 'parenthetical');
+      return;
+    }
     if (e.key === 'Tab') {
       e.preventDefault();
       const order: ElementType[] = ['scene_heading','action','character','parenthetical','dialogue','transition','song','intermission'];
@@ -209,7 +222,13 @@ export default function ScreenplayEditor() {
   }, [addBlock, deleteBlock, changeBlockType, getActiveScript]);
 
   const handleInput = useCallback(
-    (e: FormEvent<HTMLDivElement>, id: string) => updateBlock(id, e.currentTarget.innerHTML),
+    (e: FormEvent<HTMLDivElement>, id: string) => {
+      const el = e.currentTarget;
+      // Deleting every character leaves a stray <br>, which hides the line's hint
+      // ("INT. / EXT. - where are we?"). An empty line should be truly empty.
+      if (!el.textContent && el.innerHTML !== '') el.innerHTML = '';
+      updateBlock(id, el.innerHTML);
+    },
     [updateBlock],
   );
 
