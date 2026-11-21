@@ -6,6 +6,14 @@ A professional screenwriting app built for Indian cinema. Write in **English,
 Hinglish, Hindi, Tamil, Telugu or Malayalam**, with first-class support for the
 things Hollywood tools ignore: **song sequences** and the **interval**.
 
+**Live:** [scripter-eight-vert.vercel.app](https://scripter-eight-vert.vercel.app)
+
+![Kalam home: start a new script or open one](docs/screenshots/home.png)
+
+| Writing | Page view |
+|---|---|
+| ![The editor, with scenes, cast and places on the left and notes on the right](docs/screenshots/editor.png) | ![The script laid out on real pages](docs/screenshots/pages.png) |
+
 ## What makes it different
 
 - **Indian languages, properly.** Type phonetically and words convert to
